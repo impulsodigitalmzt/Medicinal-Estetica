@@ -1,0 +1,47 @@
+{
+  "url_origen": "https://www.facebook.com/profile.php?id=100081845254734",
+  "fecha_extraccion": "2026-07-13T23:28:36.631171+00:00",
+  "directorio_salida": "C:\\Pagina Medicina Gral Estetica\\Medicina Gral Estetica\\public\\fotos\\videos",
+  "configuracion": {
+    "descargar_fotos": false,
+    "descargar_videos": true,
+    "limite_fotos": null,
+    "limite_videos": 10,
+    "guardar_metadatos": true
+  },
+  "cookies_usadas": "C:\\Pagina Medicina Gral Estetica\\Medicina Gral Estetica\\public\\fotos\\videos\\cookies.txt",
+  "resultados": {
+    "fotos": null,
+    "videos": {
+      "herramienta": "yt-dlp",
+      "exito": true,
+      "codigo": 0,
+      "pipeline": "v3-playwright-first",
+      "fase_playwright": true,
+      "limite": 10,
+      "urls_encontradas": 1,
+      "urls_descargadas": 1,
+      "urls": [
+        "https://www.facebook.com/reel/4291832824413950"
+      ],
+      "cancelado": false
+    }
+  },
+  "totales": {
+    "fotos": 0,
+    "videos": 1
+  },
+  "archivos": {
+    "fotos": [],
+    "videos": [
+      {
+        "nombre": "Video [4291832824413950].f1490659559773994v.mp4",
+        "ruta": "Video [4291832824413950].f1490659559773994v.mp4",
+        "tamano_bytes": 1552546,
+        "extension": ".mp4"
+      }
+    ]
+  },
+  "errores": [],
+  "cancelado": false
+}

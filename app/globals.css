@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes brand-strip-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    overflow-x: clip;
+  }
+
+  body {
+    @apply overflow-x-hidden bg-luxury-bg font-sans text-luxury-text antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-serif text-luxury-dark;
+  }
+}
+
+@layer components {
+  .luxury-container {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-padding {
+    @apply py-16 md:py-28 lg:py-32;
+  }
+
+  .section-label {
+    @apply mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-luxury-accent;
+  }
+
+  .section-title {
+    @apply font-serif text-3xl leading-tight text-luxury-dark sm:text-4xl lg:text-[2.75rem];
+  }
+
+  .card-serenity {
+    @apply glass-luxury overflow-hidden transition-all duration-300;
+    border-radius: 1.5rem;
+  }
+
+  .card-serenity:hover {
+    box-shadow:
+      0 12px 40px -10px rgba(62, 58, 38, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  }
+
+  .btn-pill {
+    @apply inline-flex items-center justify-center px-7 py-3.5 text-sm font-medium transition-all duration-300;
+    border-radius: 9999px;
+  }
+
+  .btn-pill-dark {
+    @apply btn-pill bg-luxury-dark text-luxury-bg hover:-translate-y-0.5 hover:bg-luxury-accent hover:shadow-serenity;
+  }
+
+  .btn-pill-outline {
+    @apply btn-pill border border-luxury-accent/40 bg-transparent text-luxury-dark hover:border-luxury-dark hover:bg-luxury-card;
+  }
+
+  .btn-pill-light {
+    @apply btn-pill bg-luxury-bg text-luxury-dark hover:bg-white;
+  }
+
+  .glass-luxury {
+    @apply border border-white/40 bg-white/55 shadow-serenity backdrop-blur-xl;
+    box-shadow:
+      0 8px 32px -8px rgba(62, 58, 38, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  }
+
+  .luxury-input {
+    @apply w-full rounded-serenity border border-luxury-accent/25 bg-luxury-bg/80 px-4 py-3 text-sm text-luxury-dark outline-none transition-all duration-300 placeholder:text-luxury-text/40 focus:border-luxury-accent focus:bg-white focus:shadow-[0_0_0_3px_rgba(164,150,115,0.15)];
+  }
+
+  .btn-luxury-gold {
+    @apply inline-flex items-center justify-center rounded-pill px-7 py-3.5 text-sm font-medium text-luxury-dark transition-all duration-300;
+    background: linear-gradient(135deg, #c4b896 0%, #a49673 45%, #8a7d5c 100%);
+    box-shadow: 0 4px 20px -4px rgba(164, 150, 115, 0.55);
+  }
+
+  .btn-luxury-gold:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 28px -6px rgba(164, 150, 115, 0.65);
+    filter: brightness(1.04);
+  }
+
+  .btn-luxury-gold:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .brand-slider-track {
+    display: flex;
+    width: max-content;
+    align-items: center;
+    will-change: transform;
+    animation: brand-strip-scroll 48s linear infinite;
+  }
+
+  .brand-slider-track--slow {
+    animation-duration: 58s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .brand-slider-track {
+      animation: none;
+    }
+  }
+}

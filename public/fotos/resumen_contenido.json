@@ -1,0 +1,334 @@
+{
+  "url_origen": "https://www.facebook.com/profile.php?id=100081845254734",
+  "fecha_extraccion": "2026-07-13T23:24:01.776963+00:00",
+  "directorio_salida": "C:\\Pagina Medicina Gral Estetica\\Medicina Gral Estetica\\public\\fotos",
+  "configuracion": {
+    "descargar_fotos": true,
+    "descargar_videos": false,
+    "limite_fotos": 50,
+    "limite_videos": null,
+    "guardar_metadatos": true
+  },
+  "cookies_usadas": "C:\\Pagina Medicina Gral Estetica\\Medicina Gral Estetica\\public\\fotos\\cookies.txt",
+  "resultados": {
+    "fotos": {
+      "herramienta": "gallery-dl",
+      "exito": true,
+      "codigo": 0,
+      "limite": 50,
+      "cancelado": false
+    },
+    "videos": null
+  },
+  "totales": {
+    "fotos": 50,
+    "videos": 0
+  },
+  "archivos": {
+    "fotos": [
+      {
+        "nombre": "1000115366059963.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\1000115366059963.jpg",
+        "tamano_bytes": 210132,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "1000115369393296.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\1000115369393296.jpg",
+        "tamano_bytes": 41528,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "1006243698780463.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\1006243698780463.jpg",
+        "tamano_bytes": 286708,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "1008107588594074.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\1008107588594074.jpg",
+        "tamano_bytes": 202304,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "1012317041506462.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\1012317041506462.jpg",
+        "tamano_bytes": 464979,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "1012317044839795.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\1012317044839795.jpg",
+        "tamano_bytes": 368164,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "1028604879877678.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\1028604879877678.jpg",
+        "tamano_bytes": 394962,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "1029273379810828.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\1029273379810828.jpg",
+        "tamano_bytes": 456305,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "808033155268186.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\808033155268186.jpg",
+        "tamano_bytes": 66037,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "808033161934852.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\808033161934852.jpg",
+        "tamano_bytes": 96757,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "808033165268185.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\808033165268185.jpg",
+        "tamano_bytes": 73899,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "808033175268184.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\808033175268184.jpg",
+        "tamano_bytes": 60793,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "813402674731234.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\813402674731234.jpg",
+        "tamano_bytes": 59635,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "813402681397900.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\813402681397900.jpg",
+        "tamano_bytes": 79075,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "813402691397899.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\813402691397899.jpg",
+        "tamano_bytes": 68224,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "813402694731232.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\813402694731232.jpg",
+        "tamano_bytes": 90774,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "813402701397898.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\813402701397898.jpg",
+        "tamano_bytes": 77343,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "813402708064564.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\813402708064564.jpg",
+        "tamano_bytes": 66920,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "813402714731230.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\813402714731230.jpg",
+        "tamano_bytes": 76587,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "839655185439316.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\839655185439316.jpg",
+        "tamano_bytes": 114259,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "847413294663505.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\847413294663505.jpg",
+        "tamano_bytes": 121777,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "856319580439543.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\856319580439543.jpg",
+        "tamano_bytes": 224466,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "869310789140422.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\869310789140422.jpg",
+        "tamano_bytes": 151390,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "881871814550986.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\881871814550986.jpg",
+        "tamano_bytes": 121983,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "881871821217652.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\881871821217652.jpg",
+        "tamano_bytes": 91780,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "881871831217651.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\881871831217651.jpg",
+        "tamano_bytes": 122309,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "881871834550984.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\881871834550984.jpg",
+        "tamano_bytes": 96989,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "881871841217650.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\881871841217650.jpg",
+        "tamano_bytes": 133224,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "886274744110693.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\886274744110693.jpg",
+        "tamano_bytes": 116714,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "886284557443045.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\886284557443045.jpg",
+        "tamano_bytes": 105368,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "894147609990073.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\894147609990073.jpg",
+        "tamano_bytes": 93251,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "894147616656739.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\894147616656739.jpg",
+        "tamano_bytes": 85396,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "894147623323405.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\894147623323405.jpg",
+        "tamano_bytes": 97441,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "894147629990071.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\894147629990071.jpg",
+        "tamano_bytes": 103648,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "912910918113742.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\912910918113742.jpg",
+        "tamano_bytes": 124828,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "929062506498583.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\929062506498583.jpg",
+        "tamano_bytes": 101364,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "940277048710462.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\940277048710462.jpg",
+        "tamano_bytes": 91636,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "947029534701880.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\947029534701880.jpg",
+        "tamano_bytes": 128327,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "947029541368546.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\947029541368546.jpg",
+        "tamano_bytes": 89072,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "947029548035212.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\947029548035212.jpg",
+        "tamano_bytes": 118870,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "947029554701878.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\947029554701878.jpg",
+        "tamano_bytes": 86573,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "947029561368544.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\947029561368544.jpg",
+        "tamano_bytes": 95540,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "966584609413039.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\966584609413039.jpg",
+        "tamano_bytes": 227810,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "966584636079703.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\966584636079703.jpg",
+        "tamano_bytes": 385299,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "966584646079702.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\966584646079702.jpg",
+        "tamano_bytes": 113672,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "966584652746368.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\966584652746368.jpg",
+        "tamano_bytes": 252408,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "966584659413034.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\966584659413034.jpg",
+        "tamano_bytes": 282694,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "999183296153170.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\999183296153170.jpg",
+        "tamano_bytes": 55240,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "999183299486503.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\999183299486503.jpg",
+        "tamano_bytes": 86457,
+        "extension": ".jpg"
+      },
+      {
+        "nombre": "999183302819836.jpg",
+        "ruta": "facebook\\Dr. Andrés Osuna Lizárraga\\Fotos de Dr. Andrés Osuna Lizárraga (pb.100081845254734.-2207520000)\\999183302819836.jpg",
+        "tamano_bytes": 39887,
+        "extension": ".jpg"
+      }
+    ],
+    "videos": []
+  },
+  "errores": [],
+  "cancelado": false
+}

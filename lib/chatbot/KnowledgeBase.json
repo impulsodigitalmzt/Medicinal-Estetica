@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "name": "Asistente del Dr. Andrés Osuna",
+    "disclaimer": "Asistente virtual con IA",
+    "clinic": "Dr. Andrés Osuna Lizárraga — Medicina estética, Mazatlán"
+  },
+  "welcome": "Hola, soy el asistente virtual del Dr. Osuna. Estoy aquí para resolver tus dudas sobre nuestros tratamientos y agendar tu valoración. ¿En qué puedo ayudarte hoy?",
+  "greeting": "¡Hola! Con gusto te acompaño. ¿Buscas atenuar líneas de expresión con **Botox**, restaurar volumen con **fillers**, o un tensado cutáneo con **Endolift**?",
+  "needPrompt": "Para orientarte con precisión: ¿buscas atenuar líneas de expresión con **Botox**, volumen y armonía facial con **fillers**, o tensado cutáneo con **Endolift**?",
+  "askName": "Perfecto. Para coordinar tu valoración con el equipo del Dr. Andrés, ¿me compartes tu **nombre completo**?",
+  "askWhatsApp": "Gracias, {name}. ¿Cuál es tu número de **WhatsApp** (con lada, ej. 669 155 7846)?",
+  "askEmail": "Excelente. Por último, ¿cuál es tu **correo electrónico** de contacto?",
+  "closing": "Gracias, {name}. He enviado esta información al equipo del Dr. Osuna y en breve nos pondremos en contacto contigo.\n\nInterés registrado: **{service}**\nWhatsApp: {whatsapp}\nCorreo: {email}\n\nSi lo prefieres, también puedes agendar tu valoración en línea ahora.",
+  "fallback": "Puedo orientarte sobre **Botox**, **fillers**, **Endolift**, precios de referencia, ubicación en Mazatlán y cómo agendar tu valoración. ¿Sobre cuál te gustaría saber más?",
+  "services": {
+    "botox": {
+      "id": "botox",
+      "label": "Botox",
+      "keywords": ["botox", "toxina", "expresion", "frente", "entrecejo", "patas de gallo", "lineas"],
+      "summary": "**Botox** ayuda a atenuar líneas de expresión (frente, entrecejo y patas de gallo) con un enfoque natural y dosificación médica precisa.\n\nEl Dr. Andrés Osuna realiza una valoración previa para personalizar el protocolo según tu anatomía y objetivos.",
+      "followUp": "¿Te gustaría agendar una valoración para Botox, o prefieres conocer primero **fillers** o **Endolift**?",
+      "links": [
+        { "label": "Ver Botox", "href": "/servicios" },
+        { "label": "Agendar valoración", "href": "/reservar?categoria=botox" }
+      ]
+    },
+    "fillers": {
+      "id": "fillers",
+      "label": "Fillers",
+      "keywords": ["filler", "fillers", "relleno", "acido", "hialuron", "labio", "ojera", "pomulo", "menton", "mandib", "rinomodel", "volumen"],
+      "summary": "**Fillers** con ácido hialurónico restauran volumen y armonía facial (labios, ojeras, pómulos, mentón y más) priorizando proporciones naturales.\n\nCada plan inicia con valoración clínica para elegir el producto y la técnica adecuados.",
+      "followUp": "¿Deseas agendar valoración de fillers, o te interesa también **Botox** o **Endolift**?",
+      "links": [
+        { "label": "Ver fillers", "href": "/servicios" },
+        { "label": "Agendar valoración", "href": "/reservar?categoria=fillers" }
+      ]
+    },
+    "endolift": {
+      "id": "endolift",
+      "label": "Endolift",
+      "keywords": ["endolift", "lifting", "flacidez", "papada", "cuello", "tensado", "laser"],
+      "summary": "**Endolift** es un lifting médico mínimamente invasivo orientado a tensado cutáneo y remodelación (rostro, papada y cuello) con recuperación más ágil que la cirugía tradicional.\n\nLa candidatura se confirma en valoración presencial con el Dr. Andrés.",
+      "followUp": "¿Quieres agendar valoración para Endolift, o prefieres comparar con **Botox** o **fillers**?",
+      "links": [
+        { "label": "Ver Endolift", "href": "/servicios" },
+        { "label": "Agendar valoración", "href": "/reservar?categoria=endolift" }
+      ]
+    }
+  },
+  "quickReplies": {
+    "welcome": [
+      { "id": "botox", "label": "Botox", "message": "Me interesa Botox para líneas de expresión" },
+      { "id": "fillers", "label": "Fillers", "message": "Me interesan fillers / ácido hialurónico" },
+      { "id": "endolift", "label": "Endolift", "message": "Me interesa Endolift para tensado cutáneo" },
+      { "id": "agendar", "label": "Agendar valoración", "message": "Quiero agendar una valoración" }
+    ],
+    "afterService": [
+      { "id": "agendar", "label": "Agendar valoración", "message": "Sí, quiero agendar una valoración" },
+      { "id": "botox", "label": "Botox", "message": "Cuéntame sobre Botox" },
+      { "id": "fillers", "label": "Fillers", "message": "Cuéntame sobre fillers" },
+      { "id": "endolift", "label": "Endolift", "message": "Cuéntame sobre Endolift" }
+    ]
+  },
+  "intents": [
+    {
+      "id": "schedule",
+      "keywords": ["agendar", "cita", "valoracion", "reserva", "reservar", "turno", "disponib"],
+      "nextStep": "ask_name"
+    },
+    {
+      "id": "location",
+      "keywords": ["ubicacion", "direccion", "donde", "mapa", "mazatlan", "flamingos"],
+      "content": "Atendemos en **Alfonso Ortiz 82, Flamingos, Mazatlán, Sinaloa**. Puedes ver el mapa en la sección de Ubicación y agendar tu valoración en línea.",
+      "links": [
+        { "label": "Ver ubicación", "href": "/ubicacion" },
+        { "label": "Agendar cita", "href": "/reservar" }
+      ]
+    },
+    {
+      "id": "prices",
+      "keywords": ["precio", "costo", "cuanto", "tarif"],
+      "content": "Los precios son de **referencia** y se confirman en valoración según el protocolo indicado (Botox, fillers o Endolift).\n\nPuedes revisar rangos estimados en Servicios o agendar para una cotización personalizada con el Dr. Andrés.",
+      "links": [
+        { "label": "Ver servicios", "href": "/servicios" },
+        { "label": "Agendar valoración", "href": "/reservar" }
+      ]
+    },
+    {
+      "id": "contact",
+      "keywords": ["whatsapp", "telefono", "llamar", "contacto", "correo"],
+      "content": "Puedes agendar en línea o llamarnos al **669 155 7846**. Si prefieres, continúo aquí mismo y te pido nombre, WhatsApp y correo para coordinar tu valoración.",
+      "links": [{ "label": "Agendar cita", "href": "/reservar" }]
+    }
+  ],
+  "validation": {
+    "nameMinLength": 2,
+    "nameInvalid": "¿Me confirmas tu nombre completo, por favor?",
+    "whatsappInvalid": "Necesito un número válido de WhatsApp (al menos 10 dígitos). Ejemplo: 669 155 7846",
+    "emailInvalid": "¿Me compartes un correo válido? Ejemplo: nombre@correo.com"
+  }
+}
