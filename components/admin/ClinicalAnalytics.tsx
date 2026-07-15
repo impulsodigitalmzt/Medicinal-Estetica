@@ -41,10 +41,10 @@ export default function ClinicalAnalytics({
   ];
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-luxury-dark/10 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-md">
       <div className="flex items-center justify-between gap-3 px-5 py-3.5">
         <div className="min-w-0">
-          <p className="text-sm font-medium text-luxury-dark">
+          <p className="text-sm font-semibold text-gray-900">
             Analítica clínica
           </p>
           <p className="truncate text-xs text-luxury-text/50">

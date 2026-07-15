@@ -64,13 +64,13 @@ export default function AdminDashboardClient() {
 
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-luxury-accent">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-luxury-accent">
               Panel clínico
             </p>
-            <h1 className="mt-1 font-serif text-3xl text-luxury-dark sm:text-4xl">
+            <h1 className="mt-1 font-serif text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
               Leads del asistente
             </h1>
-            <p className="mt-2 max-w-xl text-sm text-luxury-text/65">
+            <p className="mt-2 max-w-xl text-sm text-gray-600">
               Gestiona contactos capturados por el chatbot: prioriza pendientes,
               abre WhatsApp y marca conversaciones atendidas.
             </p>
@@ -80,45 +80,49 @@ export default function AdminDashboardClient() {
 
         {/* KPI cards */}
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-luxury-dark/10 bg-white px-5 py-4 shadow-sm">
+          <div className="rounded-2xl border border-gray-200/80 bg-white px-5 py-4 shadow-md">
             <div className="flex items-center justify-between">
-              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-luxury-text/45">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
                 Total
               </p>
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-luxury-dark/5 text-luxury-dark/55">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 text-white">
                 <Users size={15} />
               </span>
             </div>
-            <p className="mt-2 font-serif text-3xl text-luxury-dark">
+            <p className="mt-2 font-serif text-3xl font-semibold text-gray-900">
               {leads.length}
             </p>
-            <p className="mt-1 text-xs text-luxury-text/45">Contactos en cola</p>
+            <p className="mt-1 text-xs text-gray-500">Contactos en cola</p>
           </div>
 
-          <div className="rounded-2xl border border-amber-700/25 bg-gradient-to-br from-amber-50 to-white px-5 py-4 shadow-sm ring-1 ring-amber-600/10">
+          <div className="rounded-2xl border border-amber-200 bg-white px-5 py-4 shadow-md">
             <div className="flex items-center justify-between">
-              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-amber-800/60">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-800">
                 Pendientes
               </p>
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-800">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-600 text-white">
                 <Clock3 size={15} />
               </span>
             </div>
-            <p className="mt-2 font-serif text-3xl text-amber-950">{pendientes}</p>
-            <p className="mt-1 text-xs text-amber-900/50">Por contactar hoy</p>
+            <p className="mt-2 font-serif text-3xl font-semibold text-gray-900">
+              {pendientes}
+            </p>
+            <p className="mt-1 text-xs text-gray-500">Por contactar hoy</p>
           </div>
 
-          <div className="rounded-2xl border border-emerald-700/20 bg-gradient-to-br from-emerald-50/80 to-white px-5 py-4 shadow-sm">
+          <div className="rounded-2xl border border-emerald-200 bg-white px-5 py-4 shadow-md">
             <div className="flex items-center justify-between">
-              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-emerald-800/55">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-800">
                 Atendidos
               </p>
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-700 text-white">
                 <Sparkles size={15} />
               </span>
             </div>
-            <p className="mt-2 font-serif text-3xl text-emerald-950">{atendidos}</p>
-            <p className="mt-1 text-xs text-emerald-900/45">Cerrados en demo</p>
+            <p className="mt-2 font-serif text-3xl font-semibold text-gray-900">
+              {atendidos}
+            </p>
+            <p className="mt-1 text-xs text-gray-500">Cerrados en demo</p>
           </div>
         </div>
 

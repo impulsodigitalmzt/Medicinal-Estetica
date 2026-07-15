@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback } from "react";
 
 type NativeVideoProps = {
   src: string;
@@ -15,8 +15,8 @@ type NativeVideoProps = {
 };
 
 /**
- * Native MP4 with reliable autoplay.
- * Browsers require muted + playsInline; React's muted prop alone is often ignored.
+ * Native MP4 with reliable muted autoplay.
+ * Sets muted on the DOM node immediately (React's muted prop alone is unreliable).
  */
 export default function NativeVideo({
   src,
@@ -28,68 +28,34 @@ export default function NativeVideo({
   loop = true,
   controls = true,
 }: NativeVideoProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useCallback(
+    (video: HTMLVideoElement | null) => {
+      if (!video) return;
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+      // Must be set synchronously so the browser allows autoplay.
+      video.defaultMuted = muted;
+      video.muted = muted;
+      video.playsInline = true;
 
-    video.muted = muted;
-    video.defaultMuted = muted;
-    video.playsInline = true;
-    video.setAttribute("playsinline", "");
-    video.setAttribute("webkit-playsinline", "");
-    if (muted) video.setAttribute("muted", "");
+      if (!autoPlay) return;
 
-    if (!autoPlay) return;
+      const play = () => {
+        void video.play().catch(() => {});
+      };
 
-    const tryPlay = () => {
-      if (video.paused) {
-        const playPromise = video.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            /* Autoplay blocked until visible / muted — retry on events. */
-          });
-        }
+      play();
+
+      if (video.readyState < 2) {
+        video.addEventListener("loadeddata", play, { once: true });
+        video.addEventListener("canplay", play, { once: true });
       }
-    };
-
-    tryPlay();
-    video.addEventListener("loadeddata", tryPlay);
-    video.addEventListener("canplay", tryPlay);
-
-    const onVisibility = () => {
-      if (document.visibilityState === "visible") tryPlay();
-    };
-    document.addEventListener("visibilitychange", onVisibility);
-
-    let observer: IntersectionObserver | undefined;
-    if (typeof IntersectionObserver !== "undefined") {
-      observer = new IntersectionObserver(
-        (entries) => {
-          const entry = entries[0];
-          if (!entry) return;
-          if (entry.isIntersecting) {
-            tryPlay();
-          } else {
-            video.pause();
-          }
-        },
-        { threshold: 0.2, rootMargin: "80px" }
-      );
-      observer.observe(video);
-    }
-
-    return () => {
-      video.removeEventListener("loadeddata", tryPlay);
-      video.removeEventListener("canplay", tryPlay);
-      document.removeEventListener("visibilitychange", onVisibility);
-      observer?.disconnect();
-    };
-  }, [autoPlay, muted, src]);
+    },
+    [autoPlay, muted, src]
+  );
 
   return (
     <video
+      key={src}
       ref={videoRef}
       className={`h-full w-full ${fit === "cover" ? "object-cover" : "object-contain"} ${className}`}
       src={src}
@@ -100,7 +66,8 @@ export default function NativeVideo({
       loop={loop}
       playsInline
       controls={controls}
-      preload="auto"
+      preload={autoPlay ? "auto" : "metadata"}
+      disableRemotePlayback
     />
   );
 }
