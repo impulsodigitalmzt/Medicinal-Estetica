@@ -153,19 +153,15 @@ function ReservarContent() {
     if (getBookedTimesForDate(date, AVAILABLE_TIMES).includes(time)) return;
     setSelectedDate(date);
     setSelectedTime(time);
-    scrollTo(paymentRef);
+    scrollTo(contactRef);
   }
 
   function selectPayment(method: "clinic" | "online") {
     setPaymentMethod(method);
 
     if (method === "online") {
-      // Elige pago en línea → abre el checkout (no saltar a nombre).
       setCheckoutOpen(true);
-      return;
     }
-
-    scrollTo(contactRef);
   }
 
   function handleConfirm() {
@@ -200,7 +196,7 @@ function ReservarContent() {
       <PageHeader
         label="Reserva tu cita"
         title="Reserva tu tratamiento"
-        description="Elige tratamiento, horario y forma de pago. Puedes reservar sin pagar ahora y abonar en clínica, o indicar pago en línea al confirmar."
+        description="Elige tratamiento, horario y tus datos. Al final decide si pagas en clínica o en línea."
       />
 
       <section className="section-padding bg-luxury-bg pb-44 sm:pb-40">
@@ -397,7 +393,50 @@ function ReservarContent() {
               </div>
             )}
 
-            {serviceId && !isHighEnd && (
+            {serviceId && (isHighEnd || (selectedDate && selectedTime)) && (
+              <section
+                ref={contactRef}
+                className="mb-8 scroll-mt-28 scroll-mb-28"
+              >
+                <p className="section-label">Tus datos</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <input
+                    type="text"
+                    placeholder="Tu nombre"
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                    onBlur={() => {
+                      if (
+                        !isHighEnd &&
+                        nombre.trim().length >= 2 &&
+                        telefono.trim().length >= 8
+                      ) {
+                        scrollTo(paymentRef);
+                      }
+                    }}
+                    className="luxury-input"
+                  />
+                  <input
+                    type="tel"
+                    placeholder="WhatsApp / Teléfono"
+                    value={telefono}
+                    onChange={(e) => setTelefono(e.target.value)}
+                    onBlur={() => {
+                      if (
+                        !isHighEnd &&
+                        nombre.trim().length >= 2 &&
+                        telefono.trim().length >= 8
+                      ) {
+                        scrollTo(paymentRef);
+                      }
+                    }}
+                    className="luxury-input"
+                  />
+                </div>
+              </section>
+            )}
+
+            {serviceId && !isHighEnd && selectedDate && selectedTime && (
               <div className="mb-8 rounded-serenity bg-luxury-card px-4 py-3 text-sm text-luxury-text">
                 El pago es opcional al reservar. Puedes pagar en la clínica el día
                 de tu cita o elegir pago en línea al confirmar.
@@ -450,28 +489,6 @@ function ReservarContent() {
                     abajo.
                   </p>
                 )}
-              </section>
-            )}
-
-            {serviceId && (isHighEnd || (selectedDate && selectedTime)) && (
-              <section ref={contactRef} className="scroll-mt-28 scroll-mb-28">
-                <p className="section-label">Tus datos</p>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <input
-                    type="text"
-                    placeholder="Tu nombre"
-                    value={nombre}
-                    onChange={(e) => setNombre(e.target.value)}
-                    className="luxury-input"
-                  />
-                  <input
-                    type="tel"
-                    placeholder="WhatsApp / Teléfono"
-                    value={telefono}
-                    onChange={(e) => setTelefono(e.target.value)}
-                    className="luxury-input"
-                  />
-                </div>
               </section>
             )}
 
