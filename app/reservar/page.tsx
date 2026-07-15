@@ -108,33 +108,22 @@ function ReservarContent() {
 
   const showContactStep =
     !!serviceId && (isHighEnd || (!!selectedDate && !!selectedTime));
-  const nombreListo = nombre.trim().length >= 2;
-  const showNombreHint = showContactStep && !nombreListo;
+  const [nombreConfirmado, setNombreConfirmado] = useState(false);
+  const showNombreHint = showContactStep && !nombreConfirmado;
 
   // Al llegar a "Tus datos": foco en Nombre.
   useEffect(() => {
-    if (!showContactStep || nombreListo) return;
+    if (!showContactStep || nombreConfirmado) return;
     const timer = window.setTimeout(() => {
       nombreRef.current?.focus({ preventScroll: true });
     }, 350);
     return () => window.clearTimeout(timer);
-  }, [showContactStep, serviceId, selectedDate, selectedTime, isHighEnd, nombreListo]);
+  }, [showContactStep, serviceId, selectedDate, selectedTime, isHighEnd, nombreConfirmado]);
 
-  const nombreListoPrev = useRef(false);
-  // Al completar el nombre: oculta leyenda y muestra WhatsApp con foco.
+  // Si reinician el formulario (otro servicio / categoría), vuelve el flujo de nombre.
   useEffect(() => {
-    if (!showContactStep) {
-      nombreListoPrev.current = false;
-      return;
-    }
-    const justCompleted = nombreListo && !nombreListoPrev.current;
-    nombreListoPrev.current = nombreListo;
-    if (!justCompleted) return;
-    const timer = window.setTimeout(() => {
-      telefonoRef.current?.focus({ preventScroll: true });
-    }, 200);
-    return () => window.clearTimeout(timer);
-  }, [showContactStep, nombreListo]);
+    if (!showContactStep) setNombreConfirmado(false);
+  }, [showContactStep, serviceId]);
 
   // Notifica al chatbot el progreso real del formulario (avance automático).
   useEffect(() => {
@@ -488,14 +477,32 @@ function ReservarContent() {
                       type="text"
                       placeholder="Tu nombre"
                       value={nombre}
-                      onChange={(e) => setNombre(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setNombre(value);
+                        if (value.trim().length < 2) {
+                          setNombreConfirmado(false);
+                        }
+                      }}
                       onBlur={() => {
+                        if (nombre.trim().length >= 2) {
+                          setNombreConfirmado(true);
+                          window.setTimeout(() => {
+                            telefonoRef.current?.focus({ preventScroll: true });
+                          }, 50);
+                        }
                         if (
                           !isHighEnd &&
                           nombre.trim().length >= 2 &&
                           telefono.trim().length >= 8
                         ) {
                           scrollTo(paymentRef);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          (e.target as HTMLInputElement).blur();
                         }
                       }}
                       className="luxury-input"
@@ -509,11 +516,11 @@ function ReservarContent() {
                         id="nombre-hint"
                         className="mt-2 text-xs leading-relaxed text-luxury-accent"
                       >
-                        Escribe tu nombre para continuar
+                        Escribe tu nombre completo para continuar
                       </p>
                     )}
                   </div>
-                  {nombreListo && (
+                  {nombreConfirmado && (
                     <div className="min-w-0">
                       <input
                         ref={telefonoRef}
