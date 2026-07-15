@@ -4,14 +4,15 @@ import { motion, useReducedMotion } from "framer-motion";
 
 type ChatBotLogoProps = {
   size?: number;
-  /** When true: stop breathing and animate eyes (reading / processing). */
+  /** When true: stop idle life and animate eyes (reading / processing). */
   isBotTyping?: boolean;
   className?: string;
 };
 
 /**
- * SupportBot mascot — top-left reference style.
- * Idle: float + breathe. Typing: eyes scan up/down.
+ * SupportBot mascot.
+ * Idle: head tilts + eyes blink + soft float.
+ * Typing: eyes scan up/down.
  */
 export default function ChatBotLogo({
   size = 56,
@@ -34,99 +35,130 @@ export default function ChatBotLogo({
       style={{ overflow: "visible" }}
       animate={
         reduceMotion
-          ? { y: 0, scale: 1 }
+          ? { y: 0 }
           : idle
-            ? { y: [0, -5, 0], scale: [1, 1.08, 1] }
-            : { y: 0, scale: 1 }
+            ? { y: [0, -3, 0] }
+            : { y: 0 }
       }
       transition={
         idle
-          ? {
-              duration: 2.2,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }
+          ? { duration: 2.8, repeat: Infinity, ease: "easeInOut" }
           : { duration: 0.25 }
       }
     >
-      {/* —— Head shell (light L / shadowed R) —— */}
-      <path
-        d="M14 18c0-8.5 7.5-15.5 18-15.5S50 9.5 50 18v14c0 8.5-7.5 14.5-18 14.5S14 40.5 14 32V18Z"
-        fill="#E6E9ED"
-      />
-      <path
-        d="M32 2.5C42.5 2.5 50 9.5 50 18v14c0 8.5-7.5 14.5-18 14.5V2.5Z"
-        fill="#C5CCD4"
-      />
-
-      {/* Antennae / ears */}
-      <ellipse cx="18.5" cy="8" rx="4.2" ry="5.2" fill="#E6E9ED" />
-      <ellipse cx="45.5" cy="8" rx="4.2" ry="5.2" fill="#C5CCD4" />
-
-      {/* Faceplate */}
-      <path
-        d="M20 20.5c0-4.2 5.4-7.5 12-7.5s12 3.3 12 7.5v10.5c0 4.2-5.4 7.5-12 7.5s-12-3.3-12-7.5V20.5Z"
-        fill="#2A3138"
-      />
-      <path
-        d="M32 13c6.6 0 12 3.3 12 7.5v10.5c0 4.2-5.4 7.5-12 7.5V13Z"
-        fill="#1E2429"
-      />
-
-      {/* Eyes — scan when typing; soft glow pulse when idle */}
+      {/* —— Head: tilts left / right —— */}
       <motion.g
+        style={{ transformOrigin: "32px 38px" }}
         animate={
-          typing
-            ? { y: [0, -3.5, 3.2, -3.5, 3.2, -3.5, 3.2, 0] }
+          reduceMotion
+            ? { rotate: 0 }
             : idle
-              ? { y: 0, opacity: [1, 0.75, 1] }
-              : { y: 0, opacity: 1 }
+              ? { rotate: [0, -7, -7, 0, 7, 7, 0, -5, 0] }
+              : typing
+                ? { rotate: [0, -3, 3, -3, 3, 0] }
+                : { rotate: 0 }
         }
         transition={
-          typing
+          idle
             ? {
-                duration: 1.35,
-                ease: "easeInOut",
-                times: [0, 0.14, 0.28, 0.42, 0.56, 0.7, 0.84, 1],
+                duration: 5.5,
+                times: [0, 0.18, 0.28, 0.4, 0.58, 0.68, 0.8, 0.9, 1],
                 repeat: Infinity,
+                ease: "easeInOut",
               }
-            : idle
-              ? { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
-              : { duration: 0.3, ease: "easeOut" }
+            : typing
+              ? { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
+              : { duration: 0.3 }
         }
       >
-        {/* Left eye */}
-        <circle cx="26.5" cy="24.5" r="4.4" fill="#00E5F0" />
-        <circle cx="26.5" cy="24.5" r="3.2" fill="#00C8D6" />
-        <circle cx="28" cy="23.2" r="1.15" fill="#FFFFFF" />
-        <circle cx="25.4" cy="25.8" r="0.55" fill="#FFFFFF" opacity="0.7" />
+        {/* Head shell */}
+        <path
+          d="M14 18c0-8.5 7.5-15.5 18-15.5S50 9.5 50 18v14c0 8.5-7.5 14.5-18 14.5S14 40.5 14 32V18Z"
+          fill="#E6E9ED"
+        />
+        <path
+          d="M32 2.5C42.5 2.5 50 9.5 50 18v14c0 8.5-7.5 14.5-18 14.5V2.5Z"
+          fill="#C5CCD4"
+        />
 
-        {/* Right eye */}
-        <circle cx="37.5" cy="24.5" r="4.4" fill="#00E5F0" />
-        <circle cx="37.5" cy="24.5" r="3.2" fill="#00C8D6" />
-        <circle cx="39" cy="23.2" r="1.15" fill="#FFFFFF" />
-        <circle cx="36.4" cy="25.8" r="0.55" fill="#FFFFFF" opacity="0.7" />
+        {/* Antennae / ears */}
+        <ellipse cx="18.5" cy="8" rx="4.2" ry="5.2" fill="#E6E9ED" />
+        <ellipse cx="45.5" cy="8" rx="4.2" ry="5.2" fill="#C5CCD4" />
+
+        {/* Faceplate */}
+        <path
+          d="M20 20.5c0-4.2 5.4-7.5 12-7.5s12 3.3 12 7.5v10.5c0 4.2-5.4 7.5-12 7.5s-12-3.3-12-7.5V20.5Z"
+          fill="#2A3138"
+        />
+        <path
+          d="M32 13c6.6 0 12 3.3 12 7.5v10.5c0 4.2-5.4 7.5-12 7.5V13Z"
+          fill="#1E2429"
+        />
+
+        {/* Eyes: blink (scaleY) when idle; scan when typing */}
+        <motion.g
+          style={{ transformOrigin: "32px 24.5px" }}
+          animate={
+            typing
+              ? { y: [0, -3.5, 3.2, -3.5, 3.2, 0], scaleY: 1 }
+              : idle
+                ? {
+                    y: 0,
+                    scaleY: [
+                      1, 1, 1, 0.08, 1, 1, 1, 1, 1, 0.08, 0.08, 1, 1, 1, 1,
+                    ],
+                  }
+                : { y: 0, scaleY: 1 }
+          }
+          transition={
+            typing
+              ? {
+                  duration: 1.35,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                }
+              : idle
+                ? {
+                    duration: 4.2,
+                    times: [
+                      0, 0.22, 0.28, 0.32, 0.36, 0.48, 0.55, 0.62, 0.68, 0.72,
+                      0.76, 0.8, 0.88, 0.94, 1,
+                    ],
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }
+                : { duration: 0.25 }
+          }
+        >
+          {/* Left eye */}
+          <circle cx="26.5" cy="24.5" r="4.4" fill="#00E5F0" />
+          <circle cx="26.5" cy="24.5" r="3.2" fill="#00C8D6" />
+          <circle cx="28" cy="23.2" r="1.15" fill="#FFFFFF" />
+          <circle cx="25.4" cy="25.8" r="0.55" fill="#FFFFFF" opacity="0.7" />
+
+          {/* Right eye */}
+          <circle cx="37.5" cy="24.5" r="4.4" fill="#00E5F0" />
+          <circle cx="37.5" cy="24.5" r="3.2" fill="#00C8D6" />
+          <circle cx="39" cy="23.2" r="1.15" fill="#FFFFFF" />
+          <circle cx="36.4" cy="25.8" r="0.55" fill="#FFFFFF" opacity="0.7" />
+        </motion.g>
+
+        {/* Smile */}
+        <path
+          d="M29.5 31.2c1.2 1.4 3.8 1.4 5 0"
+          stroke="#FFFFFF"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          fill="none"
+        />
       </motion.g>
 
-      {/* Smile */}
-      <path
-        d="M29.5 31.2c1.2 1.4 3.8 1.4 5 0"
-        stroke="#FFFFFF"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-
-      {/* Floating torso — bob independently for extra motion */}
+      {/* Torso — independent bob */}
       <motion.g
-        animate={
-          idle
-            ? { y: [0, 2.5, 0] }
-            : { y: 0 }
-        }
+        animate={idle ? { y: [0, 2, 0] } : { y: 0 }}
         transition={
           idle
-            ? { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
+            ? { duration: 2.8, repeat: Infinity, ease: "easeInOut" }
             : { duration: 0.2 }
         }
       >
