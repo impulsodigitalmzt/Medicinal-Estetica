@@ -8,6 +8,7 @@ import PageHeader from "@/components/PageHeader";
 import SubpageLayout from "@/components/SubpageLayout";
 import BookingCalendar from "@/components/BookingCalendar";
 import CheckoutModal from "@/components/checkout/CheckoutModal";
+import DemoWhatsAppModal from "@/components/DemoWhatsAppModal";
 import {
   ALL_SERVICES,
   AVAILABLE_TIMES,
@@ -15,7 +16,6 @@ import {
   formatPriceMXN,
   HIGH_END_SERVICE_IDS,
   SERVICE_CATEGORIES,
-  whatsappUrl,
 } from "@/lib/data";
 import {
   formatDateLong,
@@ -42,6 +42,14 @@ function ReservarContent() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [paidOnline, setPaidOnline] = useState(false);
   const [transactionId, setTransactionId] = useState("");
+  const [demoWhatsApp, setDemoWhatsApp] = useState<{
+    open: boolean;
+    message: string;
+  }>({ open: false, message: "" });
+
+  function showDemoWhatsApp(message: string) {
+    setDemoWhatsApp({ open: true, message });
+  }
 
   useEffect(() => {
     const svc = searchParams.get("servicio");
@@ -138,11 +146,8 @@ function ReservarContent() {
 
   function selectQuickIntent(intent: (typeof QUICK_INTENTS)[number]) {
     if ("whatsappOnly" in intent && intent.whatsappOnly) {
-      window.open(
-        whatsappUrl(
-          `Hola, me gustaría consultar disponibilidad para aparatología médica en ${CLINIC.copy.whatsappBookingClinicName}.`
-        ),
-        "_blank"
+      showDemoWhatsApp(
+        `Hola, me gustaría consultar disponibilidad para aparatología médica en ${CLINIC.copy.whatsappBookingClinicName}.`,
       );
       return;
     }
@@ -176,22 +181,24 @@ function ReservarContent() {
       return;
     }
     setConfirmed(true);
-    window.open(buildWhatsAppUrl(), "_blank");
+    showDemoWhatsApp(buildReservationMessage());
   }
 
-  function buildWhatsAppUrl(paymentRef?: string) {
-    if (!selectedService) return whatsappUrl("Hola, quiero agendar una cita.");
+  function buildReservationMessage(paymentRef?: string) {
+    if (!selectedService) {
+      return "Hola, quiero agendar una cita.";
+    }
 
     const paidNote =
       paymentRef || paidOnline
         ? `\nPago en línea confirmado (demo). Ref: ${paymentRef ?? transactionId}`
         : "";
 
-    const msg = isHighEnd
-      ? `Hola, soy ${nombre}. Solicito valoración para ${selectedService.name} (${formatPriceMXN(selectedService.price, { from: selectedService.priceFrom })} estimado) en ${CLINIC.copy.whatsappBookingClinicName}.\nTel: ${telefono}`
-      : `Hola, soy ${nombre}. Deseo reservar ${selectedService.name} el ${formatDateLong(selectedDate)} a las ${selectedTime}.\nPrecio referencia: ${formatPriceMXN(selectedService.price, { from: selectedService.priceFrom })}\nPago: ${paymentMethod === "online" || paidOnline ? "en línea" : "en clínica"}${paidNote}\nTel: ${telefono}`;
+    if (isHighEnd) {
+      return `Hola, soy ${nombre}. Solicito valoración para ${selectedService.name} (${formatPriceMXN(selectedService.price, { from: selectedService.priceFrom })} estimado) en ${CLINIC.copy.whatsappBookingClinicName}.\nTel: ${telefono}`;
+    }
 
-    return whatsappUrl(msg);
+    return `Hola, soy ${nombre}. Deseo reservar ${selectedService.name} el ${formatDateLong(selectedDate)} a las ${selectedTime}.\nPrecio referencia: ${formatPriceMXN(selectedService.price, { from: selectedService.priceFrom })}\nPago: ${paymentMethod === "online" || paidOnline ? "en línea" : "en clínica"}${paidNote}\nTel: ${telefono}`;
   }
 
   return (
@@ -199,7 +206,7 @@ function ReservarContent() {
       <PageHeader
         label="Reserva tu cita"
         title="Reserva tu tratamiento"
-        description="Elige tratamiento, horario y tus datos. Al final decide si pagas en clínica o en línea."
+        description="Demostración de reserva: tratamiento, horario, datos y pago. WhatsApp y cargos son simulados para la propuesta."
       />
 
       <section className="section-padding bg-luxury-bg pb-28 sm:pb-24">
@@ -522,21 +529,32 @@ function ReservarContent() {
             )}
 
             {confirmed && (
-              <div className="mt-6 flex items-center gap-3 rounded-serenity bg-luxury-card px-4 py-3 text-sm text-luxury-dark">
-                <Check size={18} className="shrink-0 text-luxury-accent" />
-                {paidOnline
-                  ? "Pago autorizado y reserva confirmada."
-                  : "Reserva confirmada (pago en clínica)."}{" "}
-                Si WhatsApp no se abrió,{" "}
-                <a
-                  href={buildWhatsAppUrl()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium underline"
-                >
-                  toca aquí
-                </a>
-                .
+              <div className="mt-6 flex items-start gap-3 rounded-serenity bg-luxury-card px-4 py-3 text-sm text-luxury-dark">
+                <Check size={18} className="mt-0.5 shrink-0 text-luxury-accent" />
+                <div>
+                  <p>
+                    {paidOnline
+                      ? "Pago autorizado y reserva confirmada (demo)."
+                      : "Reserva confirmada con pago en clínica (demo)."}
+                  </p>
+                  <p className="mt-1 text-xs text-luxury-text/70">
+                    El aviso por WhatsApp es una simulación para la propuesta —
+                    no se envió a ningún número real.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      showDemoWhatsApp(
+                        buildReservationMessage(
+                          paidOnline ? transactionId : undefined,
+                        ),
+                      )
+                    }
+                    className="mt-2 text-xs font-semibold text-luxury-accent underline"
+                  >
+                    Ver mensaje simulado
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -565,7 +583,7 @@ function ReservarContent() {
             onClick={() => {
               if (!readyForContact || !selectedService) return;
               setConfirmed(true);
-              window.open(buildWhatsAppUrl(), "_blank");
+              showDemoWhatsApp(buildReservationMessage());
             }}
             className="fixed bottom-4 left-4 right-4 z-50 mx-auto flex max-w-2xl flex-col items-center justify-center gap-0.5 rounded-xl bg-[#25D366] px-4 py-3.5 text-white shadow-2xl transition hover:bg-[#1ebe57] disabled:cursor-not-allowed disabled:opacity-40"
           >
@@ -603,14 +621,20 @@ function ReservarContent() {
             setTransactionId(ref);
             setConfirmed(true);
             setCheckoutOpen(false);
-            window.open(buildWhatsAppUrl(ref), "_blank");
+            showDemoWhatsApp(buildReservationMessage(ref));
           }}
           onWhatsApp={(ref) => {
-            window.open(buildWhatsAppUrl(ref), "_blank");
             setCheckoutOpen(false);
+            showDemoWhatsApp(buildReservationMessage(ref));
           }}
         />
       )}
+
+      <DemoWhatsAppModal
+        open={demoWhatsApp.open}
+        message={demoWhatsApp.message}
+        onClose={() => setDemoWhatsApp((s) => ({ ...s, open: false }))}
+      />
     </SubpageLayout>
   );
 }

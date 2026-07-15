@@ -114,7 +114,7 @@ export default function PaymentSuccess({
             onClick={onWhatsApp}
             className="inline-flex items-center justify-center rounded-xl bg-[#25D366] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1ebe57]"
           >
-            Enviar comprobante por WhatsApp
+            Simular envío por WhatsApp
           </button>
         )}
         <button
