@@ -33,7 +33,6 @@ import {
   PRIORITY_RANK,
   WHATSAPP_TEMPLATES,
   buildFollowUpMessage,
-  buildWhatsAppUrl,
   clearLeads,
   deleteLead,
   followUpLabel,
@@ -51,6 +50,7 @@ import {
   updateNextReview,
 } from "@/lib/leads/demo";
 import ClinicalAnalytics from "@/components/admin/ClinicalAnalytics";
+import DemoWhatsAppModal from "@/components/DemoWhatsAppModal";
 
 type StatusFilter = "todos" | "pendientes" | "atendidos" | "seguimiento";
 type SortKey = "fecha" | "prioridad" | "paciente" | "servicio";
@@ -234,6 +234,11 @@ export default function LeadsTable() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [followUpId, setFollowUpId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [demoWhatsApp, setDemoWhatsApp] = useState<{
+    open: boolean;
+    message: string;
+    leadId: string | null;
+  }>({ open: false, message: "", leadId: null });
 
   const refresh = useCallback(() => {
     setLeads(getLeads());
@@ -254,6 +259,15 @@ export default function LeadsTable() {
     () => leads.find((l) => l.id === followUpId) ?? null,
     [leads, followUpId],
   );
+
+  function openWhatsAppSim(lead: Lead, message: string) {
+    setDemoWhatsApp({ open: true, message, leadId: lead.id });
+  }
+
+  function defaultWhatsAppMessage(lead: Lead) {
+    const firstName = lead.name.trim().split(/\s+/)[0] || "estimado/a";
+    return `Hola ${firstName}, te saluda el equipo del Dr. Andrés Osuna. Te escribimos por tu interés en ${serviceLabel(lead.service)}. ¿Te ayudamos a agendar tu valoración o resolver alguna duda?`;
+  }
 
   const visible = useMemo(() => {
     let list = [...leads];
@@ -317,15 +331,20 @@ export default function LeadsTable() {
 
   function handleWhatsApp(lead: Lead, e: MouseEvent) {
     e.stopPropagation();
-    const url = buildWhatsAppUrl(lead.whatsapp);
-    window.open(url, "_blank", "noopener,noreferrer");
+    openWhatsAppSim(lead, defaultWhatsAppMessage(lead));
+  }
 
-    if (lead.status === "nuevo") {
+  function closeWhatsAppSim() {
+    const leadId = demoWhatsApp.leadId;
+    setDemoWhatsApp({ open: false, message: "", leadId: null });
+    if (!leadId) return;
+    const lead = leads.find((l) => l.id === leadId);
+    if (lead?.status === "nuevo") {
       const mark = window.confirm(
-        "¿Deseas marcar este lead como contactado automáticamente?",
+        "¿Deseas marcar este lead como atendido?",
       );
       if (mark) {
-        markAsAttended(lead.id);
+        markAsAttended(leadId);
         refresh();
       }
     }
@@ -715,6 +734,7 @@ export default function LeadsTable() {
             refresh();
           }}
           onWhatsApp={(e) => handleWhatsApp(selected, e)}
+          onSimulateWhatsApp={(text) => openWhatsAppSim(selected, text)}
           onAttend={() => {
             handleMarkAttended(selected.id);
           }}
@@ -726,13 +746,21 @@ export default function LeadsTable() {
         <FollowUpModal
           lead={followUpLead}
           onClose={() => setFollowUpId(null)}
-          onSent={() => {
+          onSent={(message) => {
             updateFollowUpStatus(followUpLead.id, "en_espera");
             refresh();
             setFollowUpId(null);
+            openWhatsAppSim(followUpLead, message);
           }}
         />
       )}
+
+      <DemoWhatsAppModal
+        open={demoWhatsApp.open}
+        message={demoWhatsApp.message}
+        title={`WhatsApp · ${demoWhatsApp.leadId ? leads.find((l) => l.id === demoWhatsApp.leadId)?.name ?? "Contacto" : "Contacto"}`}
+        onClose={closeWhatsAppSim}
+      />
     </>
   );
 }
@@ -833,6 +861,7 @@ function LeadDetailModal({
   onStage,
   onNextReview,
   onWhatsApp,
+  onSimulateWhatsApp,
   onAttend,
   onDelete,
 }: {
@@ -843,6 +872,7 @@ function LeadDetailModal({
   onStage: (s: PipelineStage) => void;
   onNextReview: (date: string | null) => void;
   onWhatsApp: (e: MouseEvent) => void;
+  onSimulateWhatsApp: (text: string) => void;
   onAttend: () => void;
   onDelete: (e: MouseEvent) => void;
 }) {
@@ -876,13 +906,9 @@ function LeadDetailModal({
       await navigator.clipboard.writeText(text);
       setTemplateFlash("Plantilla copiada");
     } catch {
-      setTemplateFlash("No se pudo copiar — pégalo manualmente en WhatsApp");
+      setTemplateFlash("Plantilla lista para enviar");
     }
-    window.open(
-      buildWhatsAppUrl(lead.whatsapp, text),
-      "_blank",
-      "noopener,noreferrer",
-    );
+    onSimulateWhatsApp(text);
     window.setTimeout(() => setTemplateFlash(""), 2200);
   }
 
@@ -1053,7 +1079,7 @@ function LeadDetailModal({
               <p className="mt-1.5 text-xs text-emerald-700">{templateFlash}</p>
             )}
             <p className="mt-1.5 text-[11px] text-luxury-text/45">
-              Copia el mensaje y abre WhatsApp listo para enviar.
+              Usa plantillas y envía el mensaje desde aquí.
             </p>
           </div>
 
@@ -1137,7 +1163,7 @@ function FollowUpModal({
 }: {
   lead: Lead;
   onClose: () => void;
-  onSent: () => void;
+  onSent: (message: string) => void;
 }) {
   const [message, setMessage] = useState(() => buildFollowUpMessage(lead));
 
@@ -1154,9 +1180,9 @@ function FollowUpModal({
   }, [onClose]);
 
   function handleSend() {
-    const url = buildWhatsAppUrl(lead.whatsapp, message.trim());
-    window.open(url, "_blank", "noopener,noreferrer");
-    onSent();
+    const text = message.trim();
+    if (!text) return;
+    onSent(text);
   }
 
   return (
