@@ -134,6 +134,17 @@ export class LocalJSONProvider implements LLMProvider {
     return this.startBookingGuide(true);
   }
 
+  getBookingGuideStep(
+    index: number,
+    options?: {
+      aware?: boolean;
+      isHighEnd?: boolean;
+      serviceName?: string;
+    },
+  ): LLMResponse {
+    return this.stepResponse(index, options);
+  }
+
   async getResponse(msg: string, context: LLMContext): Promise<LLMResponse> {
     await new Promise((r) => setTimeout(r, 1500));
 
@@ -176,13 +187,26 @@ export class LocalJSONProvider implements LLMProvider {
     };
   }
 
-  private stepResponse(index: number): LLMResponse {
+  private stepResponse(
+    index: number,
+    options?: {
+      aware?: boolean;
+      isHighEnd?: boolean;
+      serviceName?: string;
+    },
+  ): LLMResponse {
     const guide = this.kb.bookingGuide;
     const steps = guide.steps;
+    const serviceBit = options?.serviceName
+      ? ` **${options.serviceName}**`
+      : " tu tratamiento";
+    const aware = guide.aware as Record<string, string> | undefined;
+
     if (index >= steps.length) {
+      const prefix =
+        options?.aware && aware ? `${aware["5"]}\n\n` : "";
       return {
-        content: guide.done,
-        links: [{ label: "Agendar cita", href: "/reservar" }],
+        content: `${prefix}${guide.done}`,
         quickReplies: quickRepliesFor("bookingGuideDone", this.kb),
         nextState: {
           step: "booking_guide",
@@ -190,9 +214,30 @@ export class LocalJSONProvider implements LLMProvider {
         },
       };
     }
+
     const step = steps[index];
+    let prefix = "";
+    if (options?.aware && aware) {
+      if (options.isHighEnd && index === 2) {
+        prefix = `${aware.highEndDatos.replace("{service}", serviceBit)}\n\n`;
+      } else if (options.isHighEnd && index === 4) {
+        return {
+          content: aware.highEndDone.replace("{service}", serviceBit),
+          quickReplies: quickRepliesFor("bookingGuide", this.kb),
+          nextState: { step: "booking_guide", bookingGuideIndex: index },
+          analyze: true,
+        };
+      } else {
+        const key = String(index);
+        const template = aware[key];
+        if (template) {
+          prefix = `${template.replace("{service}", serviceBit)}\n\n`;
+        }
+      }
+    }
+
     return {
-      content: `**${step.title}**\n${step.body}`,
+      content: `${prefix}**${step.title}**\n${step.body}`,
       quickReplies: quickRepliesFor("bookingGuide", this.kb),
       nextState: { step: "booking_guide", bookingGuideIndex: index },
       analyze: true,
@@ -247,7 +292,7 @@ export class LocalJSONProvider implements LLMProvider {
     if (serviceId) {
       const service = this.kb.services[serviceId];
       return {
-        content: `${service.summary}\n\nCuando quieras, seguimos con la reserva: toca **Siguiente paso**.`,
+        content: `${service.summary}\n\nCuando avances en la página de reserva, detecto el paso y te guío en automático.`,
         links: service.links,
         quickReplies: quickRepliesFor("bookingGuide", this.kb),
         nextState: {

@@ -11,6 +11,10 @@ import {
   type ConversationSnapshot,
 } from "@/lib/chatbot/ConversationEngine";
 import knowledge from "@/lib/chatbot/KnowledgeBase.json";
+import {
+  subscribeBookingProgress,
+  resetBookingProgress,
+} from "@/lib/booking/progress";
 
 const engine = getChatEngine();
 
@@ -50,7 +54,10 @@ export default function ChatWidget() {
 
   // Al entrar a reservar: abrir el chat solo y enviar la guía automáticamente.
   useEffect(() => {
-    if (!onBookingPage) return;
+    if (!onBookingPage) {
+      resetBookingProgress();
+      return;
+    }
 
     setOpen(true);
     const timer = window.setTimeout(() => {
@@ -59,6 +66,14 @@ export default function ChatWidget() {
 
     return () => window.clearTimeout(timer);
   }, [onBookingPage, pathname]);
+
+  // El bot detecta el progreso real del formulario de reserva.
+  useEffect(() => {
+    if (!onBookingPage) return;
+    return subscribeBookingProgress((progress) => {
+      void engine.syncBookingProgress(progress);
+    });
+  }, [onBookingPage]);
 
   useEffect(() => {
     if (!open) return;

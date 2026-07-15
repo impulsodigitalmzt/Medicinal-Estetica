@@ -47,6 +47,15 @@ export interface LLMProvider {
   getWelcome(context?: { pathname?: string }): LLMResponse;
   /** Proactive tip when user opens chat on /reservar. */
   getBookingAssistIntro?(): LLMResponse;
+  /** Build a booking-guide step message (for auto-advance from the page). */
+  getBookingGuideStep?(
+    index: number,
+    options?: {
+      aware?: boolean;
+      isHighEnd?: boolean;
+      serviceName?: string;
+    },
+  ): LLMResponse;
 }
 
 export function createInitialState(): ConversationState {

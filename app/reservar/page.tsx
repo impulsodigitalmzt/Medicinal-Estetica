@@ -23,6 +23,7 @@ import {
   POPULAR_BY_CATEGORY,
   QUICK_INTENTS,
 } from "@/lib/booking-helpers";
+import { publishBookingProgress } from "@/lib/booking/progress";
 
 function ReservarContent() {
   const searchParams = useSearchParams();
@@ -38,6 +39,7 @@ function ReservarContent() {
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"clinic" | "online">("clinic");
+  const [paymentEngaged, setPaymentEngaged] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [paidOnline, setPaidOnline] = useState(false);
@@ -101,6 +103,33 @@ function ReservarContent() {
         nombre.trim().length >= 2 &&
         telefono.trim().length >= 8;
 
+  // Notifica al chatbot el progreso real del formulario (avance automático).
+  useEffect(() => {
+    let completed = 0;
+    if (serviceId) completed = 1;
+    if (!isHighEnd && selectedDate && selectedTime) completed = 2;
+    if (readyForContact) completed = 3;
+    if (paymentEngaged || checkoutOpen || paidOnline) completed = Math.max(completed, 4);
+    if (confirmed) completed = 5;
+
+    publishBookingProgress({
+      completed,
+      isHighEnd,
+      serviceName: selectedService?.name.split("(")[0].trim(),
+    });
+  }, [
+    serviceId,
+    selectedDate,
+    selectedTime,
+    readyForContact,
+    paymentEngaged,
+    checkoutOpen,
+    paidOnline,
+    confirmed,
+    isHighEnd,
+    selectedService,
+  ]);
+
   const bookedTimes = useMemo(
     () =>
       selectedDate
@@ -124,6 +153,7 @@ function ReservarContent() {
     setSelectedTime("");
     setShowAllServices(false);
     setPaymentMethod("clinic");
+    setPaymentEngaged(false);
     setConfirmed(false);
     setPaidOnline(false);
     setTransactionId("");
@@ -135,6 +165,7 @@ function ReservarContent() {
     setSelectedDate("");
     setSelectedTime("");
     setPaymentMethod("clinic");
+    setPaymentEngaged(false);
     setConfirmed(false);
     setPaidOnline(false);
     setTransactionId("");
@@ -163,6 +194,7 @@ function ReservarContent() {
 
   function selectPayment(method: "clinic" | "online") {
     setPaymentMethod(method);
+    setPaymentEngaged(true);
 
     if (method === "online") {
       const hasContact =

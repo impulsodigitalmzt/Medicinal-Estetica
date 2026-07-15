@@ -13,8 +13,17 @@
   "closing": "Gracias, {name}. He enviado esta información al equipo del Dr. Osuna y en breve nos pondremos en contacto contigo.\n\nInterés registrado: **{service}**\nWhatsApp: {whatsapp}\nCorreo: {email}\n\nSi lo prefieres, también puedes agendar tu valoración en línea ahora.",
   "fallback": "Puedo orientarte sobre **Botox**, **fillers**, **Endolift**, precios de referencia, ubicación en Mazatlán y cómo agendar tu valoración. ¿Sobre cuál te gustaría saber más?",
   "bookingGuide": {
-    "introOnPage": "Hola, soy el **asistente virtual** del Dr. Andrés Osuna. Estoy aquí para acompañarte en tu reserva y decirte exactamente qué hacer en cada momento, para que no te pierdas.\n\n**Paso 1 — Tratamiento:** en la página, elige primero el área (Botox, Fillers, Endolift…) y luego el tratamiento concreto.\n\nCuando lo tengas, toca **Siguiente paso** o escríbeme «siguiente» y seguimos juntos.",
+    "introOnPage": "Hola, soy el **asistente virtual** del Dr. Andrés Osuna. Voy a acompañarte en tu reserva: mientras avanzas en la página, yo detecto en qué paso estás y te indico qué sigue.\n\n**Paso 1 — Tratamiento:** elige primero el área (Botox, Fillers, Endolift…) o usa una de las **cuatro opciones rápidas**, y luego el tratamiento concreto.\n\nCuando lo selecciones, continúo contigo en automático.",
     "introOffPage": "Hola, soy el asistente virtual del Dr. Osuna. Puedo guiarte paso a paso para agendar: tratamiento, horario, tus datos, pago y confirmación.\n\nAbre **Agendar cita** y te acompaño desde el primer clic. ¿Empezamos?",
+    "aware": {
+      "1": "Perfecto — ya vi que elegiste{service}. Ahora vamos con el horario:",
+      "2": "Excelente — ya tienes día y hora. Siguiente:",
+      "3": "Listo — ya tengo tus datos. Ahora la forma de pago:",
+      "4": "Genial — método de pago listo. Solo falta confirmar:",
+      "5": "¡Hecho! Detecté que tu reserva quedó confirmada.",
+      "highEndDatos": "Perfecto — ya vi que elegiste{service}. Este tratamiento requiere valoración: completa tus datos abajo.",
+      "highEndDone": "Excelente — con tus datos listos, solo toca **Solicitar valoración** y el equipo del Dr. Andrés te contacta."
+    },
     "steps": [
       {
         "title": "Paso 1 — Tratamiento",
@@ -26,7 +35,7 @@
       },
       {
         "title": "Paso 3 — Tus datos",
-        "body": "Completa **Tu nombre** y **WhatsApp / Teléfono**.\n\nCon esos datos el consultorio puede confirmar tu cita. Cuando ambos campos estén listos, continúa abajo."
+        "body": "Completa **Tu nombre** y **WhatsApp / Teléfono**.\n\nCon esos datos el consultorio puede confirmar tu cita. En cuanto ambos estén listos, sigo yo con el siguiente paso."
       },
       {
         "title": "Paso 4 — Forma de pago",
@@ -37,8 +46,8 @@
         "body": "Si elegiste **clínica**, toca el botón **Confirmar reserva** debajo del método de pago.\n\nSi elegiste **en línea**, completa el pago en la pasarela: al terminar, tu cita queda registrada."
       }
     ],
-    "done": "¡Listo! Si ya confirmaste, verás el aviso de reserva en la página.\n\nSi te trabas en algún paso, escribe **ayuda** o **dónde voy** y te digo exactamente qué hacer.",
-    "lost": "No te preocupes. Dime en qué parte estás o toca un botón:\n• Tratamiento\n• Horario\n• Datos\n• Pago\n• Confirmar\n\nTambién puedes escribir «siguiente» para avanzar en la guía."
+    "done": "¡Listo! Tu reserva quedó registrada. Si necesitas cambiar algo o tienes otra duda, escríbeme cuando quieras.",
+    "lost": "No te preocupes. Dime en qué parte estás o toca un botón:\n• Tratamiento\n• Horario\n• Datos\n• Pago\n• Confirmar\n\nMientras avanzas en la página, también detecto el paso y te guío solo."
   },
   "services": {
     "botox": {
@@ -91,7 +100,6 @@
       { "id": "endolift", "label": "Endolift", "message": "Cuéntame sobre Endolift" }
     ],
     "bookingGuide": [
-      { "id": "next", "label": "Siguiente paso", "message": "Siguiente paso" },
       { "id": "lost", "label": "Estoy perdido", "message": "Estoy perdido, ¿dónde voy?" },
       { "id": "restart", "label": "Repetir guía", "message": "Repite la guía desde el inicio" }
     ],
