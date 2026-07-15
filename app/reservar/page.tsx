@@ -160,18 +160,21 @@ function ReservarContent() {
     setPaymentMethod(method);
 
     if (method === "online") {
+      const hasContact =
+        nombre.trim().length >= 2 && telefono.trim().length >= 8;
+      if (!hasContact) {
+        scrollTo(contactRef);
+        return;
+      }
       setCheckoutOpen(true);
     }
   }
 
-  function handleConfirm() {
-    if (!readyForContact || !selectedService) return;
-
-    if (!isHighEnd && paymentMethod === "online") {
-      setCheckoutOpen(true);
+  /** Reserva con pago en clínica: requiere confirmación explícita. */
+  function handleConfirmClinic() {
+    if (!readyForContact || !selectedService || paymentMethod !== "clinic") {
       return;
     }
-
     setConfirmed(true);
     window.open(buildWhatsAppUrl(), "_blank");
   }
@@ -199,7 +202,7 @@ function ReservarContent() {
         description="Elige tratamiento, horario y tus datos. Al final decide si pagas en clínica o en línea."
       />
 
-      <section className="section-padding bg-luxury-bg pb-44 sm:pb-40">
+      <section className="section-padding bg-luxury-bg pb-28 sm:pb-24">
         <div className="luxury-container max-w-2xl">
           <div className="mb-8">
             <p className="section-label">Opción más rápida</p>
@@ -438,8 +441,8 @@ function ReservarContent() {
 
             {serviceId && !isHighEnd && selectedDate && selectedTime && (
               <div className="mb-8 rounded-serenity bg-luxury-card px-4 py-3 text-sm text-luxury-text">
-                El pago es opcional al reservar. Puedes pagar en la clínica el día
-                de tu cita o elegir pago en línea al confirmar.
+                Si pagas en línea, la reserva se confirma al completar el pago. Si
+                eliges clínica, confirma abajo para registrar tu cita.
               </div>
             )}
 
@@ -461,7 +464,7 @@ function ReservarContent() {
                   >
                     <span className="block font-medium">Pagar en clínica</span>
                     <span className="mt-1 block text-xs opacity-80">
-                      Reserva ahora y paga el día de tu cita
+                      Efectivo o tarjeta el día de tu cita
                     </span>
                   </button>
                   <button
@@ -475,19 +478,45 @@ function ReservarContent() {
                   >
                     <span className="block font-medium">Pagar en línea</span>
                     <span className="mt-1 block text-xs opacity-80">
-                      Abre el checkout seguro con tarjeta simulada
+                      Al pagar, la reserva se confirma sola
                     </span>
                   </button>
                 </div>
-                {paymentMethod === "online" && (
-                  <p className="mt-3 rounded-serenity border border-luxury-accent/20 bg-luxury-card/60 px-3.5 py-2.5 text-xs leading-relaxed text-luxury-text/80">
-                    Se abre el checkout seguro. Si lo cierras, puedes volver a
-                    abrirlo con el botón{" "}
-                    <span className="font-semibold text-luxury-dark">
-                      Ir al checkout
-                    </span>{" "}
-                    abajo.
-                  </p>
+
+                {paymentMethod === "clinic" && (
+                  <button
+                    type="button"
+                    disabled={!readyForContact || confirmed}
+                    onClick={handleConfirmClinic}
+                    className="mt-4 flex w-full flex-col items-center justify-center gap-0.5 rounded-xl bg-[#1a1a1a] px-4 py-3.5 text-white shadow-lg transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <span className="text-sm font-semibold sm:text-base">
+                      {confirmed ? "Reserva confirmada" : "Confirmar reserva"}
+                    </span>
+                    {selectedService && !confirmed && (
+                      <span className="max-w-full truncate text-[11px] text-white/70">
+                        {selectedService.name.split("(")[0].trim()}
+                        {selectedTime ? ` · ${selectedTime}` : ""} · Pago en clínica
+                      </span>
+                    )}
+                  </button>
+                )}
+
+                {paymentMethod === "online" && !paidOnline && (
+                  <div className="mt-4 space-y-2">
+                    <p className="rounded-serenity border border-luxury-accent/20 bg-luxury-card/60 px-3.5 py-2.5 text-xs leading-relaxed text-luxury-text/80">
+                      Completa el pago en la pasarela. Al autorizarse el cargo, tu
+                      cita queda confirmada automáticamente.
+                    </p>
+                    <button
+                      type="button"
+                      disabled={!readyForContact}
+                      onClick={() => setCheckoutOpen(true)}
+                      className="flex w-full items-center justify-center rounded-xl border border-luxury-dark/15 bg-white px-4 py-3 text-sm font-semibold text-luxury-dark shadow-sm transition hover:bg-luxury-card disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      Abrir pasarela de pago
+                    </button>
+                  </div>
                 )}
               </section>
             )}
@@ -496,8 +525,8 @@ function ReservarContent() {
               <div className="mt-6 flex items-center gap-3 rounded-serenity bg-luxury-card px-4 py-3 text-sm text-luxury-dark">
                 <Check size={18} className="shrink-0 text-luxury-accent" />
                 {paidOnline
-                  ? "Pago simulado y reserva registradas."
-                  : "Solicitud enviada."}{" "}
+                  ? "Pago autorizado y reserva confirmada."
+                  : "Reserva confirmada (pago en clínica)."}{" "}
                 Si WhatsApp no se abrió,{" "}
                 <a
                   href={buildWhatsAppUrl()}
@@ -529,40 +558,25 @@ function ReservarContent() {
           </div>
         </div>
 
-        {serviceId && (
+        {serviceId && isHighEnd && (
           <button
             type="button"
             disabled={!readyForContact}
-            onClick={handleConfirm}
-            className={`fixed bottom-4 left-4 right-4 z-50 mx-auto flex max-w-2xl flex-col items-center justify-center gap-0.5 rounded-xl px-4 py-3.5 text-white shadow-2xl transition disabled:cursor-not-allowed disabled:opacity-40 ${
-              isHighEnd
-                ? "bg-[#25D366] hover:bg-[#1ebe57]"
-                : "bg-[#1a1a1a] hover:bg-black"
-            }`}
+            onClick={() => {
+              if (!readyForContact || !selectedService) return;
+              setConfirmed(true);
+              window.open(buildWhatsAppUrl(), "_blank");
+            }}
+            className="fixed bottom-4 left-4 right-4 z-50 mx-auto flex max-w-2xl flex-col items-center justify-center gap-0.5 rounded-xl bg-[#25D366] px-4 py-3.5 text-white shadow-2xl transition hover:bg-[#1ebe57] disabled:cursor-not-allowed disabled:opacity-40"
           >
             <span className="inline-flex items-center gap-2 text-sm font-semibold sm:text-base">
-              {isHighEnd ? <MessageCircle size={18} /> : null}
-              <span className="sm:hidden">
-                {isHighEnd
-                  ? "Valoración"
-                  : paymentMethod === "online"
-                    ? "Checkout"
-                    : "Confirmar"}
-              </span>
-              <span className="hidden sm:inline">
-                {isHighEnd
-                  ? "Solicitar valoración"
-                  : paymentMethod === "online"
-                    ? "Ir al checkout"
-                    : "Confirmar reserva"}
-              </span>
+              <MessageCircle size={18} />
+              <span className="sm:hidden">Valoración</span>
+              <span className="hidden sm:inline">Solicitar valoración</span>
             </span>
             {selectedService && (
               <span className="max-w-full truncate text-[11px] font-normal text-white/70">
                 {selectedService.name.split("(")[0].trim()}
-                {!isHighEnd && selectedDate && selectedTime
-                  ? ` · ${selectedTime}`
-                  : ""}
               </span>
             )}
           </button>
@@ -588,6 +602,8 @@ function ReservarContent() {
             setPaidOnline(true);
             setTransactionId(ref);
             setConfirmed(true);
+            setCheckoutOpen(false);
+            window.open(buildWhatsAppUrl(ref), "_blank");
           }}
           onWhatsApp={(ref) => {
             window.open(buildWhatsAppUrl(ref), "_blank");
