@@ -515,7 +515,7 @@ export default function LeadsTable() {
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full min-w-[760px] text-left text-sm">
                 <thead>
-                  <tr className="bg-gray-100 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-700">
+                  <tr className="bg-black text-[11px] font-semibold uppercase tracking-[0.12em] text-white">
                     <SortHeader
                       label="Paciente"
                       active={sortKey === "paciente"}
@@ -528,7 +528,7 @@ export default function LeadsTable() {
                       dir={sortDir}
                       onClick={() => toggleSort("servicio")}
                     />
-                    <th className="px-4 py-3.5 font-semibold">WhatsApp</th>
+                    <th className="px-4 py-3.5 font-semibold text-white">WhatsApp</th>
                     <SortHeader
                       label="Fecha captura"
                       active={sortKey === "fecha"}
@@ -541,8 +541,8 @@ export default function LeadsTable() {
                       dir={sortDir}
                       onClick={() => toggleSort("prioridad")}
                     />
-                    <th className="px-4 py-3.5 font-semibold">Estado</th>
-                    <th className="px-6 py-3.5 text-right font-semibold">Acciones</th>
+                    <th className="px-4 py-3.5 font-semibold text-white">Estado</th>
+                    <th className="px-6 py-3.5 text-right font-semibold text-white">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -702,8 +702,8 @@ function SortHeader({
           e.stopPropagation();
           onClick();
         }}
-        className={`inline-flex items-center gap-1 transition hover:text-gray-900 ${
-          active ? "text-gray-900" : "text-gray-700"
+        className={`inline-flex items-center gap-1 text-white transition hover:text-white/80 ${
+          active ? "text-white" : "text-white/90"
         }`}
       >
         {label}
@@ -714,7 +714,7 @@ function SortHeader({
             <ArrowDown size={12} />
           )
         ) : (
-          <ArrowUpDown size={12} className="opacity-50" />
+          <ArrowUpDown size={12} className="opacity-70" />
         )}
       </button>
     </th>

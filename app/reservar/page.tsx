@@ -173,7 +173,7 @@ function ReservarContent() {
         description="Elige tratamiento, horario y forma de pago. Puedes reservar sin pagar ahora y abonar en clínica, o indicar pago en línea al confirmar."
       />
 
-      <section className="section-padding bg-luxury-bg pb-36 sm:pb-32">
+      <section className="section-padding bg-luxury-bg pb-44 sm:pb-40">
         <div className="luxury-container max-w-2xl">
           <div className="mb-8">
             <p className="section-label">Opción más rápida</p>
@@ -442,54 +442,42 @@ function ReservarContent() {
         </div>
 
         {serviceId && (
-          <div className="fixed inset-x-0 bottom-0 z-40 border-t border-luxury-accent/15 bg-luxury-bg/95 px-4 py-3 shadow-serenity backdrop-blur-md pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-            <div className="luxury-container flex max-w-2xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-              <div className="min-w-0 flex-1 text-sm">
-                <p className="truncate font-medium text-luxury-dark">
-                  {selectedService?.name.split("(")[0].trim()}
-                </p>
-                {selectedService && (
-                  <p className="truncate text-xs text-luxury-accent">
-                    {formatPriceMXN(selectedService.price, {
-                      from: selectedService.priceFrom,
-                    })}
-                  </p>
-                )}
-                {!isHighEnd && selectedDate && selectedTime && (
-                  <p className="truncate text-xs text-luxury-text/70">
-                    {formatDateLong(selectedDate)} · {selectedTime}
-                    {paymentMethod === "online" ? " · Pago en línea" : " · Pago en clínica"}
-                  </p>
-                )}
-              </div>
-              <button
-                type="button"
-                disabled={!readyForContact}
-                onClick={handleConfirm}
-                className={`btn-pill inline-flex shrink-0 items-center gap-2 disabled:cursor-not-allowed disabled:opacity-40 ${
-                  isHighEnd
-                    ? "bg-[#25D366] text-white hover:opacity-90"
-                    : "btn-luxury-gold"
-                }`}
-              >
-                {isHighEnd ? <MessageCircle size={18} /> : null}
-                <span className="sm:hidden">
-                  {isHighEnd
-                    ? "Valoración"
-                    : paymentMethod === "online"
-                      ? "Checkout"
-                      : "Confirmar"}
-                </span>
-                <span className="hidden sm:inline">
-                  {isHighEnd
-                    ? "Solicitar valoración"
-                    : paymentMethod === "online"
-                      ? "Ir al checkout"
-                      : "Confirmar reserva"}
-                </span>
-              </button>
-            </div>
-          </div>
+          <button
+            type="button"
+            disabled={!readyForContact}
+            onClick={handleConfirm}
+            className={`fixed bottom-4 left-4 right-4 z-50 mx-auto flex max-w-2xl flex-col items-center justify-center gap-0.5 rounded-xl px-4 py-3.5 text-white shadow-2xl transition disabled:cursor-not-allowed disabled:opacity-40 ${
+              isHighEnd
+                ? "bg-[#25D366] hover:bg-[#1ebe57]"
+                : "bg-[#1a1a1a] hover:bg-black"
+            }`}
+          >
+            <span className="inline-flex items-center gap-2 text-sm font-semibold sm:text-base">
+              {isHighEnd ? <MessageCircle size={18} /> : null}
+              <span className="sm:hidden">
+                {isHighEnd
+                  ? "Valoración"
+                  : paymentMethod === "online"
+                    ? "Checkout"
+                    : "Confirmar"}
+              </span>
+              <span className="hidden sm:inline">
+                {isHighEnd
+                  ? "Solicitar valoración"
+                  : paymentMethod === "online"
+                    ? "Ir al checkout"
+                    : "Confirmar reserva"}
+              </span>
+            </span>
+            {selectedService && (
+              <span className="max-w-full truncate text-[11px] font-normal text-white/70">
+                {selectedService.name.split("(")[0].trim()}
+                {!isHighEnd && selectedDate && selectedTime
+                  ? ` · ${selectedTime}`
+                  : ""}
+              </span>
+            )}
+          </button>
         )}
       </section>
 
