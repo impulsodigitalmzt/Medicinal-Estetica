@@ -31,6 +31,8 @@ function ReservarContent() {
   const scheduleRef = useRef<HTMLDivElement>(null);
   const paymentRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
+  const nombreRef = useRef<HTMLInputElement>(null);
+  const telefonoRef = useRef<HTMLInputElement>(null);
 
   const [categoryId, setCategoryId] = useState("faciales");
   const [serviceId, setServiceId] = useState("");
@@ -103,6 +105,36 @@ function ReservarContent() {
         !!selectedTime &&
         nombre.trim().length >= 2 &&
         telefono.trim().length >= 8;
+
+  const showContactStep =
+    !!serviceId && (isHighEnd || (!!selectedDate && !!selectedTime));
+  const nombreListo = nombre.trim().length >= 2;
+  const showNombreHint = showContactStep && !nombreListo;
+
+  // Al llegar a "Tus datos": foco en Nombre.
+  useEffect(() => {
+    if (!showContactStep || nombreListo) return;
+    const timer = window.setTimeout(() => {
+      nombreRef.current?.focus({ preventScroll: true });
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [showContactStep, serviceId, selectedDate, selectedTime, isHighEnd, nombreListo]);
+
+  const nombreListoPrev = useRef(false);
+  // Al completar el nombre: oculta leyenda y muestra WhatsApp con foco.
+  useEffect(() => {
+    if (!showContactStep) {
+      nombreListoPrev.current = false;
+      return;
+    }
+    const justCompleted = nombreListo && !nombreListoPrev.current;
+    nombreListoPrev.current = nombreListo;
+    if (!justCompleted) return;
+    const timer = window.setTimeout(() => {
+      telefonoRef.current?.focus({ preventScroll: true });
+    }, 200);
+    return () => window.clearTimeout(timer);
+  }, [showContactStep, nombreListo]);
 
   // Notifica al chatbot el progreso real del formulario (avance automático).
   useEffect(() => {
@@ -443,45 +475,66 @@ function ReservarContent() {
               </div>
             )}
 
-            {serviceId && (isHighEnd || (selectedDate && selectedTime)) && (
+            {showContactStep && (
               <section
                 ref={contactRef}
                 className="mb-8 scroll-mt-28 scroll-mb-28"
               >
                 <p className="section-label">Tus datos</p>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <input
-                    type="text"
-                    placeholder="Tu nombre"
-                    value={nombre}
-                    onChange={(e) => setNombre(e.target.value)}
-                    onBlur={() => {
-                      if (
-                        !isHighEnd &&
-                        nombre.trim().length >= 2 &&
-                        telefono.trim().length >= 8
-                      ) {
-                        scrollTo(paymentRef);
+                  <div className="min-w-0">
+                    <input
+                      ref={nombreRef}
+                      type="text"
+                      placeholder="Tu nombre"
+                      value={nombre}
+                      onChange={(e) => setNombre(e.target.value)}
+                      onBlur={() => {
+                        if (
+                          !isHighEnd &&
+                          nombre.trim().length >= 2 &&
+                          telefono.trim().length >= 8
+                        ) {
+                          scrollTo(paymentRef);
+                        }
+                      }}
+                      className="luxury-input"
+                      autoComplete="name"
+                      aria-describedby={
+                        showNombreHint ? "nombre-hint" : undefined
                       }
-                    }}
-                    className="luxury-input"
-                  />
-                  <input
-                    type="tel"
-                    placeholder="WhatsApp / Teléfono"
-                    value={telefono}
-                    onChange={(e) => setTelefono(e.target.value)}
-                    onBlur={() => {
-                      if (
-                        !isHighEnd &&
-                        nombre.trim().length >= 2 &&
-                        telefono.trim().length >= 8
-                      ) {
-                        scrollTo(paymentRef);
-                      }
-                    }}
-                    className="luxury-input"
-                  />
+                    />
+                    {showNombreHint && (
+                      <p
+                        id="nombre-hint"
+                        className="mt-2 text-xs leading-relaxed text-luxury-accent"
+                      >
+                        Escribe tu nombre para continuar
+                      </p>
+                    )}
+                  </div>
+                  {nombreListo && (
+                    <div className="min-w-0">
+                      <input
+                        ref={telefonoRef}
+                        type="tel"
+                        placeholder="WhatsApp / Teléfono"
+                        value={telefono}
+                        onChange={(e) => setTelefono(e.target.value)}
+                        onBlur={() => {
+                          if (
+                            !isHighEnd &&
+                            nombre.trim().length >= 2 &&
+                            telefono.trim().length >= 8
+                          ) {
+                            scrollTo(paymentRef);
+                          }
+                        }}
+                        className="luxury-input"
+                        autoComplete="tel"
+                      />
+                    </div>
+                  )}
                 </div>
               </section>
             )}
