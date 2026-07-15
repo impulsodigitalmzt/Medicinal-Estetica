@@ -11,10 +11,10 @@ type ChatBotLogoProps = {
 
 /**
  * SupportBot mascot — top-left reference style.
- * Idle: subtle scale breathing. Typing: eyes scan up/down ×3.
+ * Idle: float + breathe. Typing: eyes scan up/down.
  */
 export default function ChatBotLogo({
-  size = 40,
+  size = 56,
   isBotTyping = false,
   className = "",
 }: ChatBotLogoProps) {
@@ -29,19 +29,20 @@ export default function ChatBotLogo({
       viewBox="0 0 64 64"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={className}
+      className={`drop-shadow-md ${className}`}
       aria-hidden
+      style={{ overflow: "visible" }}
       animate={
         reduceMotion
-          ? { scale: 1 }
+          ? { y: 0, scale: 1 }
           : idle
-            ? { scale: [1, 1.05, 1] }
-            : { scale: 1 }
+            ? { y: [0, -5, 0], scale: [1, 1.08, 1] }
+            : { y: 0, scale: 1 }
       }
       transition={
         idle
           ? {
-              duration: 2,
+              duration: 2.2,
               repeat: Infinity,
               ease: "easeInOut",
             }
@@ -72,17 +73,26 @@ export default function ChatBotLogo({
         fill="#1E2429"
       />
 
-      {/* Eyes — Y offset when typing (scan ×3) */}
+      {/* Eyes — scan when typing; soft glow pulse when idle */}
       <motion.g
         animate={
           typing
-            ? { y: [0, -2.4, 2.2, -2.4, 2.2, -2.4, 2.2, 0] }
-            : { y: 0 }
+            ? { y: [0, -3.5, 3.2, -3.5, 3.2, -3.5, 3.2, 0] }
+            : idle
+              ? { y: 0, opacity: [1, 0.75, 1] }
+              : { y: 0, opacity: 1 }
         }
         transition={
           typing
-            ? { duration: 1.35, ease: "easeInOut", times: [0, 0.14, 0.28, 0.42, 0.56, 0.7, 0.84, 1] }
-            : { duration: 0.3, ease: "easeOut" }
+            ? {
+                duration: 1.35,
+                ease: "easeInOut",
+                times: [0, 0.14, 0.28, 0.42, 0.56, 0.7, 0.84, 1],
+                repeat: Infinity,
+              }
+            : idle
+              ? { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
+              : { duration: 0.3, ease: "easeOut" }
         }
       >
         {/* Left eye */}
@@ -107,20 +117,31 @@ export default function ChatBotLogo({
         fill="none"
       />
 
-      {/* Floating torso */}
-      <path
-        d="M27 52.5c0-5.2 2.2-9.5 5-9.5s5 4.3 5 9.5c0 2.8-2.2 4.5-5 4.5s-5-1.7-5-4.5Z"
-        fill="#E6E9ED"
-      />
-      <path
-        d="M32 43c2.8 0 5 4.3 5 9.5 0 2.8-2.2 4.5-5 4.5V43Z"
-        fill="#C5CCD4"
-      />
-      {/* Side fins */}
-      <ellipse cx="24.5" cy="50" rx="3.2" ry="2.4" fill="#E6E9ED" />
-      <ellipse cx="39.5" cy="50" rx="3.2" ry="2.4" fill="#C5CCD4" />
-      {/* Chest accent */}
-      <circle cx="32" cy="50.5" r="1.6" fill="#00D4E0" />
+      {/* Floating torso — bob independently for extra motion */}
+      <motion.g
+        animate={
+          idle
+            ? { y: [0, 2.5, 0] }
+            : { y: 0 }
+        }
+        transition={
+          idle
+            ? { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
+            : { duration: 0.2 }
+        }
+      >
+        <path
+          d="M27 52.5c0-5.2 2.2-9.5 5-9.5s5 4.3 5 9.5c0 2.8-2.2 4.5-5 4.5s-5-1.7-5-4.5Z"
+          fill="#E6E9ED"
+        />
+        <path
+          d="M32 43c2.8 0 5 4.3 5 9.5 0 2.8-2.2 4.5-5 4.5V43Z"
+          fill="#C5CCD4"
+        />
+        <ellipse cx="24.5" cy="50" rx="3.2" ry="2.4" fill="#E6E9ED" />
+        <ellipse cx="39.5" cy="50" rx="3.2" ry="2.4" fill="#C5CCD4" />
+        <circle cx="32" cy="50.5" r="1.6" fill="#00D4E0" />
+      </motion.g>
     </motion.svg>
   );
 }

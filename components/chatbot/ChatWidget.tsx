@@ -95,8 +95,12 @@ export default function ChatWidget() {
         <motion.button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="flex h-14 w-14 items-center justify-center rounded-full border border-white/70 bg-white/95 text-luxury-dark shadow-serenity-lg backdrop-blur-md"
-          whileHover={reduceMotion ? undefined : { scale: 1.04 }}
+          className={
+            open
+              ? "flex h-12 w-12 items-center justify-center rounded-full border border-white/40 bg-luxury-dark/85 text-white shadow-serenity-lg backdrop-blur-md"
+              : "flex h-[4.25rem] w-[4.25rem] items-center justify-center overflow-visible bg-transparent p-0"
+          }
+          whileHover={reduceMotion ? undefined : { scale: open ? 1.04 : 1.06 }}
           whileTap={reduceMotion ? undefined : { scale: 0.96 }}
           aria-expanded={open}
           aria-label={open ? "Cerrar asistente" : "Abrir asistente virtual"}
@@ -109,7 +113,7 @@ export default function ChatWidget() {
                 animate={{ opacity: 1, rotate: 0 }}
                 exit={{ opacity: 0, rotate: 90 }}
                 transition={{ duration: 0.2 }}
-                className="flex items-center justify-center text-luxury-dark/70"
+                className="flex items-center justify-center"
               >
                 <X size={22} strokeWidth={1.75} />
               </motion.span>
@@ -120,9 +124,9 @@ export default function ChatWidget() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.85 }}
                 transition={{ duration: 0.2 }}
-                className="flex items-center justify-center"
+                className="flex items-center justify-center overflow-visible"
               >
-                <ChatBotLogo size={40} isBotTyping={isBotTyping} />
+                <ChatBotLogo size={64} isBotTyping={isBotTyping} />
               </motion.span>
             )}
           </AnimatePresence>

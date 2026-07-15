@@ -73,29 +73,6 @@ export default function Navbar() {
                 className="relative z-10 shrink-0 [&_img]:h-11 [&_img]:sm:h-14"
               />
 
-              <div
-                className={`absolute left-1/2 top-1/2 z-[1] flex -translate-x-1/2 -translate-y-1/2 items-center gap-0.5 lg:hidden ${
-                  isTransparent ? "text-white/85" : "text-luxury-text/70"
-                }`}
-              >
-                {SOCIAL_LINKS.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={link.label}
-                    className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
-                      isTransparent
-                        ? "hover:bg-white/10 hover:text-white"
-                        : "hover:bg-luxury-card hover:text-luxury-dark"
-                    }`}
-                  >
-                    <SocialIcon link={link} size={15} />
-                  </a>
-                ))}
-              </div>
-
               <nav
                 aria-label="Navegación principal"
                 className="hidden items-center gap-1 lg:flex"
@@ -173,10 +150,32 @@ export default function Navbar() {
                 </Link>
               </nav>
 
-              <div className="relative z-10 flex shrink-0 items-center gap-1.5 lg:hidden">
+              <div className="relative z-10 flex shrink-0 items-center gap-0.5 sm:gap-1.5 lg:hidden">
+                <div
+                  className={`flex items-center ${
+                    isTransparent ? "text-white" : "text-luxury-dark"
+                  }`}
+                >
+                  {SOCIAL_LINKS.map((link) => (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={link.label}
+                      className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+                        isTransparent
+                          ? "hover:bg-white/15 hover:text-white"
+                          : "hover:bg-luxury-card hover:text-luxury-dark"
+                      }`}
+                    >
+                      <SocialIcon link={link} size={18} />
+                    </a>
+                  ))}
+                </div>
                 <Link
                   href="/reservar"
-                  className={`btn-luxury-gold hidden min-[380px]:inline-flex px-4 py-2 text-xs shadow-sm sm:text-sm ${
+                  className={`btn-luxury-gold hidden min-[400px]:inline-flex px-3 py-2 text-xs shadow-sm sm:px-4 sm:text-sm ${
                     isTransparent ? "shadow-lg shadow-black/10" : ""
                   }`}
                 >
