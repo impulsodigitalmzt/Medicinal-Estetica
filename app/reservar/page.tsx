@@ -109,7 +109,8 @@ function ReservarContent() {
   const showContactStep =
     !!serviceId && (isHighEnd || (!!selectedDate && !!selectedTime));
   const [nombreConfirmado, setNombreConfirmado] = useState(false);
-  const showNombreHint = showContactStep && !nombreConfirmado;
+  const [nombreAlert, setNombreAlert] = useState(false);
+  const [telefonoAlert, setTelefonoAlert] = useState(false);
 
   // Al llegar a "Tus datos": foco en Nombre.
   useEffect(() => {
@@ -122,8 +123,41 @@ function ReservarContent() {
 
   // Si reinician el formulario (otro servicio / categoría), vuelve el flujo de nombre.
   useEffect(() => {
-    if (!showContactStep) setNombreConfirmado(false);
+    if (!showContactStep) {
+      setNombreConfirmado(false);
+      setNombreAlert(false);
+      setTelefonoAlert(false);
+    }
   }, [showContactStep, serviceId]);
+
+  /** Si intentan pasar al pago sin datos, muestra alerta y no continúa. */
+  function ensureContactBeforePayment(): boolean {
+    if (nombre.trim().length < 2) {
+      setNombreAlert(true);
+      setTelefonoAlert(false);
+      setNombreConfirmado(false);
+      scrollTo(contactRef);
+      window.setTimeout(() => {
+        nombreRef.current?.focus({ preventScroll: true });
+      }, 320);
+      return false;
+    }
+
+    setNombreAlert(false);
+    setNombreConfirmado(true);
+
+    if (telefono.trim().length < 8) {
+      setTelefonoAlert(true);
+      scrollTo(contactRef);
+      window.setTimeout(() => {
+        telefonoRef.current?.focus({ preventScroll: true });
+      }, 320);
+      return false;
+    }
+
+    setTelefonoAlert(false);
+    return true;
+  }
 
   // Notifica al chatbot el progreso real del formulario (avance automático).
   useEffect(() => {
@@ -222,25 +256,20 @@ function ReservarContent() {
   }
 
   function selectPayment(method: "clinic" | "online") {
+    if (!ensureContactBeforePayment()) return;
+
     setPaymentMethod(method);
     setPaymentEngaged(true);
 
     if (method === "online") {
-      const hasContact =
-        nombre.trim().length >= 2 && telefono.trim().length >= 8;
-      if (!hasContact) {
-        scrollTo(contactRef);
-        return;
-      }
       setCheckoutOpen(true);
     }
   }
 
   /** Reserva con pago en clínica: requiere confirmación explícita. */
   function handleConfirmClinic() {
-    if (!readyForContact || !selectedService || paymentMethod !== "clinic") {
-      return;
-    }
+    if (!ensureContactBeforePayment()) return;
+    if (!selectedService || paymentMethod !== "clinic" || confirmed) return;
     setConfirmed(true);
     showDemoWhatsApp(buildReservationMessage());
   }
@@ -480,13 +509,16 @@ function ReservarContent() {
                       onChange={(e) => {
                         const value = e.target.value;
                         setNombre(value);
-                        if (value.trim().length < 2) {
+                        if (value.trim().length >= 2) {
+                          setNombreAlert(false);
+                        } else {
                           setNombreConfirmado(false);
                         }
                       }}
                       onBlur={() => {
                         if (nombre.trim().length >= 2) {
                           setNombreConfirmado(true);
+                          setNombreAlert(false);
                           window.setTimeout(() => {
                             telefonoRef.current?.focus({ preventScroll: true });
                           }, 50);
@@ -505,16 +537,22 @@ function ReservarContent() {
                           (e.target as HTMLInputElement).blur();
                         }
                       }}
-                      className="luxury-input"
+                      className={`luxury-input ${
+                        nombreAlert
+                          ? "border-red-400/80 ring-2 ring-red-300/40"
+                          : ""
+                      }`}
                       autoComplete="name"
+                      aria-invalid={nombreAlert}
                       aria-describedby={
-                        showNombreHint ? "nombre-hint" : undefined
+                        nombreAlert ? "nombre-alert" : undefined
                       }
                     />
-                    {showNombreHint && (
+                    {nombreAlert && (
                       <p
-                        id="nombre-hint"
-                        className="mt-2 text-xs leading-relaxed text-luxury-accent"
+                        id="nombre-alert"
+                        role="alert"
+                        className="mt-2 rounded-serenity border border-red-300/50 bg-red-50 px-3 py-2 text-xs leading-relaxed text-red-800"
                       >
                         Escribe tu nombre completo para continuar
                       </p>
@@ -527,7 +565,12 @@ function ReservarContent() {
                         type="tel"
                         placeholder="WhatsApp / Teléfono"
                         value={telefono}
-                        onChange={(e) => setTelefono(e.target.value)}
+                        onChange={(e) => {
+                          setTelefono(e.target.value);
+                          if (e.target.value.trim().length >= 8) {
+                            setTelefonoAlert(false);
+                          }
+                        }}
                         onBlur={() => {
                           if (
                             !isHighEnd &&
@@ -537,9 +580,26 @@ function ReservarContent() {
                             scrollTo(paymentRef);
                           }
                         }}
-                        className="luxury-input"
+                        className={`luxury-input ${
+                          telefonoAlert
+                            ? "border-red-400/80 ring-2 ring-red-300/40"
+                            : ""
+                        }`}
                         autoComplete="tel"
+                        aria-invalid={telefonoAlert}
+                        aria-describedby={
+                          telefonoAlert ? "telefono-alert" : undefined
+                        }
                       />
+                      {telefonoAlert && (
+                        <p
+                          id="telefono-alert"
+                          role="alert"
+                          className="mt-2 rounded-serenity border border-red-300/50 bg-red-50 px-3 py-2 text-xs leading-relaxed text-red-800"
+                        >
+                          Escribe tu WhatsApp / teléfono para continuar
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -593,7 +653,7 @@ function ReservarContent() {
                 {paymentMethod === "clinic" && (
                   <button
                     type="button"
-                    disabled={!readyForContact || confirmed}
+                    disabled={confirmed}
                     onClick={handleConfirmClinic}
                     className="mt-4 flex w-full flex-col items-center justify-center gap-0.5 rounded-xl bg-[#1a1a1a] px-4 py-3.5 text-white shadow-lg transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
                   >
@@ -617,9 +677,11 @@ function ReservarContent() {
                     </p>
                     <button
                       type="button"
-                      disabled={!readyForContact}
-                      onClick={() => setCheckoutOpen(true)}
-                      className="flex w-full items-center justify-center rounded-xl border border-luxury-dark/15 bg-white px-4 py-3 text-sm font-semibold text-luxury-dark shadow-sm transition hover:bg-luxury-card disabled:cursor-not-allowed disabled:opacity-40"
+                      onClick={() => {
+                        if (!ensureContactBeforePayment()) return;
+                        setCheckoutOpen(true);
+                      }}
+                      className="flex w-full items-center justify-center rounded-xl border border-luxury-dark/15 bg-white px-4 py-3 text-sm font-semibold text-luxury-dark shadow-sm transition hover:bg-luxury-card"
                     >
                       Abrir pasarela de pago
                     </button>
@@ -675,9 +737,9 @@ function ReservarContent() {
         {serviceId && isHighEnd && (
           <button
             type="button"
-            disabled={!readyForContact}
+            disabled={confirmed}
             onClick={() => {
-              if (!readyForContact || !selectedService) return;
+              if (!ensureContactBeforePayment() || !selectedService) return;
               setConfirmed(true);
               showDemoWhatsApp(buildReservationMessage());
             }}
