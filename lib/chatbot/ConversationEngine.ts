@@ -81,18 +81,24 @@ export class ConversationEngine {
   }
 
   /**
-   * When the user opens chat on /reservar, offer step-by-step guidance
-   * without interrupting an active lead interview.
+   * Proactive booking guide when user lands on /reservar.
+   * Waits for the engine to be idle so it works even if welcome is still typing.
    */
   async offerBookingAssistIfNeeded() {
     if (!this.pathname.startsWith("/reservar")) return;
     if (this.bookingAssistShown) return;
+
+    for (let i = 0; i < 24 && this.status !== "idle"; i++) {
+      await delay(150);
+    }
     if (this.status !== "idle") return;
+    if (this.bookingAssistShown) return;
 
     const interviewing = ["ask_name", "ask_whatsapp", "ask_email"].includes(
       this.state.step,
     );
     if (interviewing) return;
+
     if (this.state.step === "booking_guide") {
       this.bookingAssistShown = true;
       return;
@@ -105,10 +111,10 @@ export class ConversationEngine {
     this.quickReplies = [];
     this.status = "analyzing";
     this.commit();
-    await delay(400);
+    await delay(500);
     this.status = "typing";
     this.commit();
-    await delay(900);
+    await delay(1100);
     this.applyAssistantResponse(intro);
     this.status = "idle";
     this.commit();

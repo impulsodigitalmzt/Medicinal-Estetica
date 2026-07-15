@@ -48,10 +48,17 @@ export default function ChatWidget() {
     engine.setPathname(pathname ?? "/");
   }, [pathname]);
 
+  // Al entrar a reservar: abrir el chat solo y enviar la guía automáticamente.
   useEffect(() => {
-    if (!open || !onBookingPage) return;
-    void engine.offerBookingAssistIfNeeded();
-  }, [open, onBookingPage]);
+    if (!onBookingPage) return;
+
+    setOpen(true);
+    const timer = window.setTimeout(() => {
+      void engine.offerBookingAssistIfNeeded();
+    }, 350);
+
+    return () => window.clearTimeout(timer);
+  }, [onBookingPage, pathname]);
 
   useEffect(() => {
     if (!open) return;
