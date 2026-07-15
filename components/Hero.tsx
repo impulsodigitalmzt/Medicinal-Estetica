@@ -60,19 +60,19 @@ export default function Hero() {
           {CLINIC.copy.heroSubcopy}
         </p>
 
-        {/* Book bar */}
-        <div className="mt-10 flex w-full max-w-md flex-col gap-3 sm:max-w-lg sm:flex-row sm:items-center sm:rounded-pill sm:border sm:border-white/25 sm:bg-white/10 sm:p-1.5 sm:backdrop-blur-md">
-          <div className="flex flex-1 items-center rounded-pill border border-white/25 bg-white/95 px-5 py-3.5 sm:border-0 sm:bg-transparent sm:py-0">
-            <span className="text-sm text-luxury-text/60 sm:text-luxury-bg/70">
+        {/* Book bar — siempre en una sola fila */}
+        <div className="mt-10 flex w-full max-w-lg flex-row items-center gap-1.5 rounded-pill border border-white/25 bg-white/10 p-1.5 backdrop-blur-md sm:gap-0 sm:p-1.5">
+          <div className="flex min-w-0 flex-1 items-center px-3 py-2 sm:px-5 sm:py-0">
+            <span className="truncate text-[0.7rem] leading-tight text-luxury-bg/80 sm:text-sm sm:text-luxury-bg/70">
               Valoración · Faciales · Estética
             </span>
           </div>
           <Link
             href="/reservar"
-            className="btn-luxury-gold shrink-0 gap-2 shadow-float sm:px-8"
+            className="btn-luxury-gold shrink-0 gap-1.5 px-3 py-2.5 text-xs shadow-float sm:gap-2 sm:px-8 sm:py-3 sm:text-sm"
           >
             Agendar cita
-            <ArrowRight size={16} />
+            <ArrowRight size={15} />
           </Link>
         </div>
       </div>
