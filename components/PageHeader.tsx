@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 import Logo from "@/components/Logo";
 
 type PageHeaderProps = {
@@ -9,6 +10,8 @@ type PageHeaderProps = {
   image?: string;
   imageAlt?: string;
   tone?: "sand" | "cream";
+  /** Optional CTA under the description (e.g. Reservar). */
+  action?: ReactNode;
 };
 
 export default function PageHeader({
@@ -18,6 +21,7 @@ export default function PageHeader({
   image = "/fotos/Captura.JPG",
   imageAlt = "Consultorio Dr. Andrés Osuna",
   tone = "sand",
+  action,
 }: PageHeaderProps) {
   const overlay =
     tone === "sand"
@@ -48,6 +52,7 @@ export default function PageHeader({
             {description}
           </p>
         )}
+        {action ? <div className="mt-8 flex justify-center">{action}</div> : null}
       </div>
     </div>
   );

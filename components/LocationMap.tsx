@@ -16,6 +16,11 @@ export default function LocationMap() {
         label="Ubicación"
         title={CLINIC.copy.locationTitle}
         description={CLINIC.copy.locationDescription}
+        action={
+          <Link href="/reservar" className="btn-luxury-gold inline-flex px-8 py-3">
+            Reservar
+          </Link>
+        }
       />
 
       <section className="section-padding bg-luxury-card pt-0">
