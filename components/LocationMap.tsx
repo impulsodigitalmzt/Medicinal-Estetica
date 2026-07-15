@@ -48,7 +48,7 @@ export default function LocationMap() {
           </div>
 
           <div className="mb-12 grid gap-4 sm:grid-cols-3 lg:mb-16">
-            <div className="glass-luxury p-5 text-center">
+            <div className="glass-luxury rounded-serenity-lg p-5 text-center">
               <MapPin
                 size={22}
                 className="mx-auto text-luxury-accent"
@@ -62,7 +62,7 @@ export default function LocationMap() {
               </p>
             </div>
 
-            <div className="glass-luxury p-5 text-center">
+            <div className="glass-luxury rounded-serenity-lg p-5 text-center">
               <Clock
                 size={22}
                 className="mx-auto text-luxury-accent"
@@ -78,7 +78,7 @@ export default function LocationMap() {
               </p>
             </div>
 
-            <div className="glass-luxury p-5 text-center">
+            <div className="glass-luxury rounded-serenity-lg p-5 text-center">
               <Phone
                 size={22}
                 className="mx-auto text-luxury-accent"

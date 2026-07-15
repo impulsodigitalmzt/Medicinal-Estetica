@@ -17,7 +17,7 @@ export default function FinalCTA() {
       </div>
 
       <div className="luxury-container relative z-10 flex justify-center">
-        <div className="glass-luxury w-full max-w-lg px-8 py-12 text-center md:px-12 md:py-14">
+        <div className="glass-luxury w-full max-w-lg rounded-serenity-lg px-8 py-12 text-center md:px-12 md:py-14">
           <h2 className="font-serif text-2xl text-luxury-dark sm:text-3xl">
             {CLINIC.copy.finalCtaTitle}
           </h2>
