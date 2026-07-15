@@ -90,8 +90,9 @@ export class ConversationEngine {
   /** Bumps on pathname switch — cancela saludos/avances de otro contexto. */
   private pathEpoch = 0;
   private siteBag: ChatBag | null = null;
-  private bookingBag: ChatBag | null = null;
   private mode: "site" | "booking" = "site";
+  /** Último completed del formulario — si baja, reinicia la guía. */
+  private lastUiCompleted = 0;
   /** Cached for useSyncExternalStore — must keep referential equality until change. */
   private snapshot: ConversationSnapshot;
 
@@ -119,19 +120,84 @@ export class ConversationEngine {
 
     if (!wasBooking && nowBooking) {
       this.siteBag = this.stash();
-      this.applyBag(this.bookingBag ?? emptyBag(), "booking");
+      // Cada visita a /reservar empieza la guía desde cero.
+      this.lastUiCompleted = 0;
+      this.applyBag(emptyBag(), "booking");
       this.commit();
       return;
     }
 
     if (wasBooking && !nowBooking) {
-      this.bookingBag = this.stash();
+      // No conserva mensajes de reserva fuera de /reservar.
+      this.lastUiCompleted = 0;
       this.applyBag(this.siteBag ?? emptyBag(), "site");
       this.commit();
       if (this.messages.length === 0 && this.status === "idle") {
         void this.bootstrapWelcome();
       }
     }
+  }
+
+  /**
+   * Limpia el hilo de reserva y vuelve a empezar (nueva cita).
+   */
+  async restartBookingGuide(progress?: BookingUiProgress | null) {
+    if (this.mode !== "booking" && !this.pathname.startsWith("/reservar")) {
+      return;
+    }
+
+    this.pathEpoch += 1;
+    const epoch = this.pathEpoch;
+    this.pendingGuideTarget = null;
+    this.guideSyncing = false;
+    this.messages = [];
+    this.state = createInitialState();
+    this.quickReplies = [];
+    this.bookingAssistShown = false;
+    this.status = "idle";
+    this.mode = "booking";
+    this.commit();
+
+    const p = progress ?? getLatestBookingProgress();
+    this.lastUiCompleted = p?.completed ?? 0;
+
+    if (!p || p.completed <= 0) {
+      await this.offerBookingAssistIfNeeded();
+      return;
+    }
+
+    // Ya hay progreso en el formulario: un solo mensaje del paso actual.
+    this.lastProgressMeta = {
+      isHighEnd: p.isHighEnd,
+      serviceName: p.serviceName,
+    };
+    const target = mapProgressToGuideIndex(p);
+    this.bookingAssistShown = true;
+
+    if (target <= 0) {
+      await this.offerBookingAssistIfNeeded();
+      return;
+    }
+
+    const response = this.provider.getBookingGuideStep?.(target, {
+      aware: true,
+      isHighEnd: p.isHighEnd,
+      serviceName: p.serviceName,
+    });
+    if (!response || epoch !== this.pathEpoch) return;
+
+    this.status = "analyzing";
+    this.commit();
+    await delay(350);
+    if (epoch !== this.pathEpoch) return;
+    this.status = "typing";
+    this.commit();
+    await delay(700);
+    if (epoch !== this.pathEpoch) return;
+
+    this.applyAssistantResponse(response);
+    this.status = "idle";
+    this.commit();
   }
 
   private stash(): ChatBag {
@@ -169,6 +235,13 @@ export class ConversationEngine {
       isHighEnd: progress.isHighEnd,
       serviceName: progress.serviceName,
     };
+
+    // El usuario empezó otra reserva (formulario atrás): limpiar y reiniciar.
+    if (progress.completed < this.lastUiCompleted) {
+      await this.restartBookingGuide(progress);
+      return;
+    }
+    this.lastUiCompleted = progress.completed;
 
     const target = mapProgressToGuideIndex(progress);
     if (target <= 0) return;
@@ -391,13 +464,13 @@ export class ConversationEngine {
     this.leadPersisted = false;
     this.bookingAssistShown = false;
     this.pendingGuideTarget = null;
+    this.lastUiCompleted = 0;
     this.siteBag = null;
-    this.bookingBag = null;
     this.mode = this.pathname.startsWith("/reservar") ? "booking" : "site";
     this.pathEpoch += 1;
     this.commit();
     if (this.mode === "booking") {
-      void this.offerBookingAssistIfNeeded();
+      void this.restartBookingGuide(getLatestBookingProgress());
     } else {
       void this.bootstrapWelcome();
     }
@@ -406,6 +479,20 @@ export class ConversationEngine {
   async send(userText: string): Promise<ChatMessage | null> {
     const trimmed = userText.trim();
     if (!trimmed || this.status !== "idle") return null;
+
+    // «Repetir guía» / reinicio: limpia el hilo de reserva.
+    if (
+      this.mode === "booking" &&
+      /repite la guia|desde el inicio|reinicia(r)? (la )?guia/.test(
+        trimmed
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, ""),
+      )
+    ) {
+      await this.restartBookingGuide(getLatestBookingProgress());
+      return null;
+    }
 
     const epoch = this.pathEpoch;
 

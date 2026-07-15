@@ -61,7 +61,8 @@ export default function ChatWidget() {
 
     setOpen(true);
     const timer = window.setTimeout(() => {
-      void engine.offerBookingAssistIfNeeded();
+      // Siempre inicia limpio al entrar a reservar.
+      void engine.restartBookingGuide();
     }, 350);
 
     return () => window.clearTimeout(timer);
