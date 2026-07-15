@@ -76,7 +76,7 @@ function TestimonialCard({
       </div>
 
       <figure className="flex min-h-0 flex-1 flex-col">
-        <blockquote className="relative min-h-0 flex-1 overflow-hidden pl-6 font-serif text-sm leading-relaxed text-luxury-text sm:text-base md:text-lg">
+        <blockquote className="relative min-h-0 flex-1 overflow-hidden pl-6 font-sans text-base font-medium leading-relaxed text-luxury-dark sm:text-lg md:text-xl">
           <span
             aria-hidden
             className="absolute left-0 top-0 font-serif text-4xl leading-none text-luxury-accent/30"
