@@ -18,6 +18,15 @@ export type ConversationSnapshot = {
   status: EngineStatus;
 };
 
+/** Saved chat bag so /reservar and el resto del sitio no mezclan mensajes. */
+type ChatBag = {
+  messages: ChatMessage[];
+  state: ConversationState;
+  quickReplies: QuickReply[];
+  bookingAssistShown: boolean;
+  leadPersisted: boolean;
+};
+
 function createMessage(
   role: ChatMessage["role"],
   content: string,
@@ -46,6 +55,16 @@ function mergeState(
   };
 }
 
+function emptyBag(): ChatBag {
+  return {
+    messages: [],
+    state: createInitialState(),
+    quickReplies: [],
+    bookingAssistShown: false,
+    leadPersisted: false,
+  };
+}
+
 /**
  * Owns message history + interview state.
  * UI never talks to the knowledge base or a concrete LLM — only this engine.
@@ -68,6 +87,11 @@ export class ConversationEngine {
     BookingUiProgress,
     "isHighEnd" | "serviceName"
   > = { isHighEnd: false };
+  /** Bumps on pathname switch — cancela saludos/avances de otro contexto. */
+  private pathEpoch = 0;
+  private siteBag: ChatBag | null = null;
+  private bookingBag: ChatBag | null = null;
+  private mode: "site" | "booking" = "site";
   /** Cached for useSyncExternalStore — must keep referential equality until change. */
   private snapshot: ConversationSnapshot;
 
@@ -86,11 +110,50 @@ export class ConversationEngine {
     const next = pathname || "/";
     const wasBooking = this.pathname.startsWith("/reservar");
     const nowBooking = next.startsWith("/reservar");
+
+    if (next === this.pathname) return;
+
     this.pathname = next;
-    if (wasBooking && !nowBooking) {
-      this.bookingAssistShown = false;
-      this.pendingGuideTarget = null;
+    this.pathEpoch += 1;
+    this.pendingGuideTarget = null;
+
+    if (!wasBooking && nowBooking) {
+      this.siteBag = this.stash();
+      this.applyBag(this.bookingBag ?? emptyBag(), "booking");
+      this.commit();
+      return;
     }
+
+    if (wasBooking && !nowBooking) {
+      this.bookingBag = this.stash();
+      this.applyBag(this.siteBag ?? emptyBag(), "site");
+      this.commit();
+      if (this.messages.length === 0 && this.status === "idle") {
+        void this.bootstrapWelcome();
+      }
+    }
+  }
+
+  private stash(): ChatBag {
+    return {
+      messages: this.messages,
+      state: this.state,
+      quickReplies: this.quickReplies,
+      bookingAssistShown: this.bookingAssistShown,
+      leadPersisted: this.leadPersisted,
+    };
+  }
+
+  private applyBag(bag: ChatBag, mode: "site" | "booking") {
+    this.mode = mode;
+    this.messages = bag.messages;
+    this.state = bag.state;
+    this.quickReplies = bag.quickReplies;
+    this.bookingAssistShown = bag.bookingAssistShown;
+    this.leadPersisted = bag.leadPersisted;
+    this.status = "idle";
+    this.guideSyncing = false;
+    this.pendingGuideTarget = null;
   }
 
   /**
@@ -98,7 +161,9 @@ export class ConversationEngine {
    * Jumps to the highest pending step (no fake “Siguiente paso” from the user).
    */
   async syncBookingProgress(progress: BookingUiProgress) {
-    if (!this.pathname.startsWith("/reservar")) return;
+    if (!this.pathname.startsWith("/reservar") || this.mode !== "booking") {
+      return;
+    }
 
     this.lastProgressMeta = {
       isHighEnd: progress.isHighEnd,
@@ -122,11 +187,21 @@ export class ConversationEngine {
   private async flushBookingGuideSync() {
     if (this.guideSyncing) return;
     this.guideSyncing = true;
+    const epoch = this.pathEpoch;
 
     try {
       while (this.pendingGuideTarget !== null) {
+        if (epoch !== this.pathEpoch || this.mode !== "booking") {
+          this.pendingGuideTarget = null;
+          return;
+        }
+
         for (let i = 0; i < 32 && this.status !== "idle"; i++) {
           await delay(120);
+        }
+        if (epoch !== this.pathEpoch || this.mode !== "booking") {
+          this.pendingGuideTarget = null;
+          return;
         }
         if (this.status !== "idle") return;
 
@@ -138,11 +213,14 @@ export class ConversationEngine {
           return;
         }
 
-        // Ensure guide is active (welcome may still be generic).
         if (this.state.step !== "booking_guide") {
           await this.offerBookingAssistIfNeeded();
           for (let i = 0; i < 20 && this.status !== "idle"; i++) {
             await delay(100);
+          }
+          if (epoch !== this.pathEpoch || this.mode !== "booking") {
+            this.pendingGuideTarget = null;
+            return;
           }
         }
 
@@ -166,20 +244,29 @@ export class ConversationEngine {
         this.status = "analyzing";
         this.commit();
         await delay(420);
+        if (epoch !== this.pathEpoch || this.mode !== "booking") return;
+
         this.status = "typing";
         this.commit();
         await delay(900);
+        if (epoch !== this.pathEpoch || this.mode !== "booking") return;
+
         this.applyAssistantResponse(response);
         this.status = "idle";
         this.commit();
       }
     } finally {
       this.guideSyncing = false;
-      if (this.pendingGuideTarget !== null && this.status === "idle") {
-        void this.flushBookingGuideSync();
-      } else if (this.pendingGuideTarget !== null) {
-        // Reintentar cuando el motor vuelva a estar idle.
-        void delay(200).then(() => this.flushBookingGuideSync());
+      if (
+        this.pendingGuideTarget !== null &&
+        this.mode === "booking" &&
+        epoch === this.pathEpoch
+      ) {
+        if (this.status === "idle") {
+          void this.flushBookingGuideSync();
+        } else {
+          void delay(200).then(() => this.flushBookingGuideSync());
+        }
       }
     }
   }
@@ -189,12 +276,17 @@ export class ConversationEngine {
    * Waits for the engine to be idle so it works even if welcome is still typing.
    */
   async offerBookingAssistIfNeeded() {
-    if (!this.pathname.startsWith("/reservar")) return;
+    if (!this.pathname.startsWith("/reservar") || this.mode !== "booking") {
+      return;
+    }
     if (this.bookingAssistShown) return;
+
+    const epoch = this.pathEpoch;
 
     for (let i = 0; i < 24 && this.status !== "idle"; i++) {
       await delay(150);
     }
+    if (epoch !== this.pathEpoch || this.mode !== "booking") return;
     if (this.status !== "idle") return;
     if (this.bookingAssistShown) return;
 
@@ -213,7 +305,6 @@ export class ConversationEngine {
 
     this.bookingAssistShown = true;
 
-    // Evita el saludo genérico duplicado: deja solo la guía de reserva.
     const userHasSpoken = this.messages.some((m) => m.role === "user");
     if (!userHasSpoken) {
       this.messages = [];
@@ -223,14 +314,17 @@ export class ConversationEngine {
     this.status = "analyzing";
     this.commit();
     await delay(500);
+    if (epoch !== this.pathEpoch || this.mode !== "booking") return;
+
     this.status = "typing";
     this.commit();
     await delay(1100);
+    if (epoch !== this.pathEpoch || this.mode !== "booking") return;
+
     this.applyAssistantResponse(intro);
     this.status = "idle";
     this.commit();
 
-    // Si el usuario ya eligió algo en la página mientras salía el intro, avanzar ya.
     const latest = getLatestBookingProgress();
     if (latest && latest.completed > 0) {
       void this.syncBookingProgress(latest);
@@ -239,13 +333,23 @@ export class ConversationEngine {
 
   /** Welcome with Analizando… → Escribiendo… for a professional first impression. */
   private async bootstrapWelcome() {
+    const epoch = this.pathEpoch;
     this.status = "analyzing";
     this.commit();
     await delay(520);
+    if (epoch !== this.pathEpoch) return;
 
     this.status = "typing";
     this.commit();
     await delay(680);
+    if (epoch !== this.pathEpoch) return;
+
+    // Solo saludo de sitio aquí; en /reservar usa offerBookingAssistIfNeeded.
+    if (this.pathname.startsWith("/reservar") || this.mode === "booking") {
+      this.status = "idle";
+      this.commit();
+      return;
+    }
 
     const welcome = this.provider.getWelcome({ pathname: this.pathname });
     this.applyAssistantResponse(welcome);
@@ -287,19 +391,30 @@ export class ConversationEngine {
     this.leadPersisted = false;
     this.bookingAssistShown = false;
     this.pendingGuideTarget = null;
+    this.siteBag = null;
+    this.bookingBag = null;
+    this.mode = this.pathname.startsWith("/reservar") ? "booking" : "site";
+    this.pathEpoch += 1;
     this.commit();
-    void this.bootstrapWelcome();
+    if (this.mode === "booking") {
+      void this.offerBookingAssistIfNeeded();
+    } else {
+      void this.bootstrapWelcome();
+    }
   }
 
   async send(userText: string): Promise<ChatMessage | null> {
     const trimmed = userText.trim();
     if (!trimmed || this.status !== "idle") return null;
 
+    const epoch = this.pathEpoch;
+
     this.messages = [...this.messages, createMessage("user", trimmed)];
     this.quickReplies = [];
     this.status = "analyzing";
     this.commit();
     await delay(350);
+    if (epoch !== this.pathEpoch) return null;
 
     this.status = "typing";
     this.commit();
@@ -309,6 +424,8 @@ export class ConversationEngine {
       state: this.state,
       pathname: this.pathname,
     });
+
+    if (epoch !== this.pathEpoch) return null;
 
     const assistant = this.applyAssistantResponse(response);
     this.status = "idle";
