@@ -18,7 +18,7 @@ export default function LocationMap() {
         description={CLINIC.copy.locationDescription}
         action={
           <Link href="/reservar" className="btn-luxury-gold inline-flex px-8 py-3">
-            Reservar
+            Agendar cita
           </Link>
         }
       />

@@ -157,7 +157,7 @@ export default function Navbar() {
                     isTransparent ? "shadow-lg shadow-black/10" : ""
                   }`}
                 >
-                  Reservar
+                  Agendar cita
                 </Link>
                 <button
                   type="button"
