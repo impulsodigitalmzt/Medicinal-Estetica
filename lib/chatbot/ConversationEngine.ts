@@ -5,6 +5,7 @@ import { addLead } from "@/lib/leads/demo";
 import type { ChatMessage, QuickReply } from "./types";
 import {
   mapProgressToGuideIndex,
+  getLatestBookingProgress,
   type BookingUiProgress,
 } from "@/lib/booking/progress";
 
@@ -154,14 +155,12 @@ export class ConversationEngine {
           continue;
         }
 
-        const builder = this.provider.getBookingGuideStep;
-        if (!builder) return;
-
-        const response = builder(target, {
+        const response = this.provider.getBookingGuideStep?.(target, {
           aware: true,
           isHighEnd: this.lastProgressMeta.isHighEnd,
           serviceName: this.lastProgressMeta.serviceName,
         });
+        if (!response) return;
 
         this.quickReplies = [];
         this.status = "analyzing";
@@ -176,8 +175,11 @@ export class ConversationEngine {
       }
     } finally {
       this.guideSyncing = false;
-      if (this.pendingGuideTarget !== null) {
+      if (this.pendingGuideTarget !== null && this.status === "idle") {
         void this.flushBookingGuideSync();
+      } else if (this.pendingGuideTarget !== null) {
+        // Reintentar cuando el motor vuelva a estar idle.
+        void delay(200).then(() => this.flushBookingGuideSync());
       }
     }
   }
@@ -227,6 +229,12 @@ export class ConversationEngine {
     this.applyAssistantResponse(intro);
     this.status = "idle";
     this.commit();
+
+    // Si el usuario ya eligió algo en la página mientras salía el intro, avanzar ya.
+    const latest = getLatestBookingProgress();
+    if (latest && latest.completed > 0) {
+      void this.syncBookingProgress(latest);
+    }
   }
 
   /** Welcome with Analizando… → Escribiendo… for a professional first impression. */

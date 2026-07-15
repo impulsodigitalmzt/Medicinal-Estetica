@@ -24,6 +24,7 @@ import {
   QUICK_INTENTS,
 } from "@/lib/booking-helpers";
 import { publishBookingProgress } from "@/lib/booking/progress";
+import { getChatEngine } from "@/lib/chatbot/ConversationEngine";
 
 function ReservarContent() {
   const searchParams = useSearchParams();
@@ -109,14 +110,21 @@ function ReservarContent() {
     if (serviceId) completed = 1;
     if (!isHighEnd && selectedDate && selectedTime) completed = 2;
     if (readyForContact) completed = 3;
-    if (paymentEngaged || checkoutOpen || paidOnline) completed = Math.max(completed, 4);
+    if (paymentEngaged || checkoutOpen || paidOnline) {
+      completed = Math.max(completed, 4);
+    }
     if (confirmed) completed = 5;
 
-    publishBookingProgress({
+    const progress = {
       completed,
       isHighEnd,
       serviceName: selectedService?.name.split("(")[0].trim(),
-    });
+    };
+    publishBookingProgress(progress);
+    const engine = getChatEngine();
+    engine.setPathname("/reservar");
+    // Llamada directa: el bot debe reaccionar en cuanto eliges tratamiento/hora/datos.
+    void engine.syncBookingProgress(progress);
   }, [
     serviceId,
     selectedDate,

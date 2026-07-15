@@ -13,41 +13,41 @@
   "closing": "Gracias, {name}. He enviado esta información al equipo del Dr. Osuna y en breve nos pondremos en contacto contigo.\n\nInterés registrado: **{service}**\nWhatsApp: {whatsapp}\nCorreo: {email}\n\nSi lo prefieres, también puedes agendar tu valoración en línea ahora.",
   "fallback": "Puedo orientarte sobre **Botox**, **fillers**, **Endolift**, precios de referencia, ubicación en Mazatlán y cómo agendar tu valoración. ¿Sobre cuál te gustaría saber más?",
   "bookingGuide": {
-    "introOnPage": "Hola, soy el **asistente virtual** del Dr. Andrés Osuna. Voy a acompañarte en tu reserva: mientras avanzas en la página, yo detecto en qué paso estás y te indico qué sigue.\n\n**Paso 1 — Tratamiento:** elige primero el área (Botox, Fillers, Endolift…) o usa una de las **cuatro opciones rápidas**, y luego el tratamiento concreto.\n\nCuando lo selecciones, continúo contigo en automático.",
-    "introOffPage": "Hola, soy el asistente virtual del Dr. Osuna. Puedo guiarte paso a paso para agendar: tratamiento, horario, tus datos, pago y confirmación.\n\nAbre **Agendar cita** y te acompaño desde el primer clic. ¿Empezamos?",
+    "introOnPage": "Hola, te acompaño en tu reserva.\n\n**Paso 1:** elige un tratamiento (arriba, en las opciones rápidas o por área).",
+    "introOffPage": "Puedo guiarte para agendar. Abre **Agendar cita** y te acompaño ahí.",
     "aware": {
-      "1": "Perfecto — ya vi que elegiste{service}. Ahora vamos con el horario:",
-      "2": "Excelente — ya tienes día y hora. Siguiente:",
-      "3": "Listo — ya tengo tus datos. Ahora la forma de pago:",
-      "4": "Genial — método de pago listo. Solo falta confirmar:",
-      "5": "¡Hecho! Detecté que tu reserva quedó confirmada.",
-      "highEndDatos": "Perfecto — ya vi que elegiste{service}. Este tratamiento requiere valoración: completa tus datos abajo.",
-      "highEndDone": "Excelente — con tus datos listos, solo toca **Solicitar valoración** y el equipo del Dr. Andrés te contacta."
+      "1": "Listo: {service}.\n\n**Paso 2:** elige día y hora en el calendario.",
+      "2": "Horario anotado.\n\n**Paso 3:** escribe tu nombre y WhatsApp.",
+      "3": "Datos listos.\n\n**Paso 4:** elige pagar en clínica o en línea.",
+      "4": "Casi.\n\n**Paso 5:** confirma la reserva (o termina el pago en línea).",
+      "5": "¡Listo! Tu reserva quedó registrada.",
+      "highEndDatos": "Listo: {service}.\n\nCompleta nombre y WhatsApp abajo (requiere valoración).",
+      "highEndDone": "Datos listos. Toca **Solicitar valoración**."
     },
     "steps": [
       {
-        "title": "Paso 1 — Tratamiento",
-        "body": "En la página, elige primero el **área** (Botox, Fillers, Endolift…) y después el **tratamiento** concreto.\n\nOpcional: también puedes usar las tarjetas de «Opción más rápida» al inicio."
+        "title": "Paso 1",
+        "body": "Elige un tratamiento (opciones rápidas o por área)."
       },
       {
-        "title": "Paso 2 — Día y hora",
-        "body": "Baja a **¿Cuándo te conviene?** Elige un día en el calendario y luego un horario.\n\nLos marcados como **Ocupado** ya no están disponibles; elige uno libre (en blanco o resaltado al tocarlo)."
+        "title": "Paso 2",
+        "body": "Elige día y hora en el calendario (evita los ocupados)."
       },
       {
-        "title": "Paso 3 — Tus datos",
-        "body": "Completa **Tu nombre** y **WhatsApp / Teléfono**.\n\nCon esos datos el consultorio puede confirmar tu cita. En cuanto ambos estén listos, sigo yo con el siguiente paso."
+        "title": "Paso 3",
+        "body": "Completa nombre y WhatsApp."
       },
       {
-        "title": "Paso 4 — Forma de pago",
-        "body": "Elige cómo pagar:\n• **Pagar en clínica** — confirmas la reserva y abonas el día de la cita.\n• **Pagar en línea** — se abre la pasarela; al autorizar el pago, la reserva queda confirmada."
+        "title": "Paso 4",
+        "body": "Pagar en clínica o en línea."
       },
       {
-        "title": "Paso 5 — Confirmar",
-        "body": "Si elegiste **clínica**, toca el botón **Confirmar reserva** debajo del método de pago.\n\nSi elegiste **en línea**, completa el pago en la pasarela: al terminar, tu cita queda registrada."
+        "title": "Paso 5",
+        "body": "Confirma la reserva o termina el pago en línea."
       }
     ],
-    "done": "¡Listo! Tu reserva quedó registrada. Si necesitas cambiar algo o tienes otra duda, escríbeme cuando quieras.",
-    "lost": "No te preocupes. Dime en qué parte estás o toca un botón:\n• Tratamiento\n• Horario\n• Datos\n• Pago\n• Confirmar\n\nMientras avanzas en la página, también detecto el paso y te guío solo."
+    "done": "¡Listo! Tu reserva quedó registrada.",
+    "lost": "¿En qué paso estás?\nTratamiento · Horario · Datos · Pago · Confirmar"
   },
   "services": {
     "botox": {

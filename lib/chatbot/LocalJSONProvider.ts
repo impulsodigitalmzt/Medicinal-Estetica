@@ -198,15 +198,15 @@ export class LocalJSONProvider implements LLMProvider {
     const guide = this.kb.bookingGuide;
     const steps = guide.steps;
     const serviceBit = options?.serviceName
-      ? ` **${options.serviceName}**`
-      : " tu tratamiento";
+      ? `**${options.serviceName}**`
+      : "tu tratamiento";
     const aware = guide.aware as Record<string, string> | undefined;
 
     if (index >= steps.length) {
-      const prefix =
-        options?.aware && aware ? `${aware["5"]}\n\n` : "";
+      const content =
+        options?.aware && aware?.["5"] ? aware["5"] : guide.done;
       return {
-        content: `${prefix}${guide.done}`,
+        content,
         quickReplies: quickRepliesFor("bookingGuideDone", this.kb),
         nextState: {
           step: "booking_guide",
@@ -215,29 +215,29 @@ export class LocalJSONProvider implements LLMProvider {
       };
     }
 
-    const step = steps[index];
-    let prefix = "";
+    // Avance automático: un solo mensaje corto (sin repetir título + cuerpo).
     if (options?.aware && aware) {
+      let content: string | undefined;
       if (options.isHighEnd && index === 2) {
-        prefix = `${aware.highEndDatos.replace("{service}", serviceBit)}\n\n`;
+        content = aware.highEndDatos.replace("{service}", serviceBit);
       } else if (options.isHighEnd && index === 4) {
+        content = aware.highEndDone.replace("{service}", serviceBit);
+      } else {
+        content = aware[String(index)]?.replace("{service}", serviceBit);
+      }
+      if (content) {
         return {
-          content: aware.highEndDone.replace("{service}", serviceBit),
+          content,
           quickReplies: quickRepliesFor("bookingGuide", this.kb),
           nextState: { step: "booking_guide", bookingGuideIndex: index },
           analyze: true,
         };
-      } else {
-        const key = String(index);
-        const template = aware[key];
-        if (template) {
-          prefix = `${template.replace("{service}", serviceBit)}\n\n`;
-        }
       }
     }
 
+    const step = steps[index];
     return {
-      content: `${prefix}**${step.title}**\n${step.body}`,
+      content: `**${step.title}:** ${step.body}`,
       quickReplies: quickRepliesFor("bookingGuide", this.kb),
       nextState: { step: "booking_guide", bookingGuideIndex: index },
       analyze: true,
