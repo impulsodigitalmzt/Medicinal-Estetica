@@ -226,3 +226,59 @@ export const QUICK_INTENTS = [
     whatsappOnly: true,
   },
 ] as const;
+
+/** Hash simple y estable para simular agenda sin backend. */
+function hashDateKey(dateStr: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < dateStr.length; i++) {
+    h ^= dateStr.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/**
+ * Simula citas ya reservadas por día (determinista).
+ * Misma fecha = mismos huecos ocupados al recargar.
+ */
+export function getBookedTimesForDate(
+  dateStr: string,
+  allTimes: readonly string[],
+): string[] {
+  if (!dateStr || allTimes.length === 0) return [];
+
+  const date = parseDateString(dateStr);
+  const day = date.getDay();
+  const hash = hashDateKey(dateStr);
+  const todayStr = toDateString(startOfDay(new Date()));
+
+  // Semana laboral: 2–4 ocupados; sábado más lleno; domingo más libre.
+  let bookedCount = 2 + (hash % 3);
+  if (day === 6) bookedCount = 4 + (hash % 2);
+  if (day === 0) bookedCount = 1 + (hash % 2);
+  if (dateStr === todayStr) bookedCount = Math.min(allTimes.length - 2, bookedCount + 2);
+
+  // Siempre dejar al menos 2 huecos libres.
+  bookedCount = Math.min(bookedCount, Math.max(0, allTimes.length - 2));
+
+  const booked: string[] = [];
+  let cursor = hash;
+  let guard = 0;
+  while (booked.length < bookedCount && guard < allTimes.length * 4) {
+    const idx = cursor % allTimes.length;
+    const time = allTimes[idx];
+    if (time && !booked.includes(time)) booked.push(time);
+    cursor = (Math.imul(cursor, 17) + 23) >>> 0;
+    guard += 1;
+  }
+
+  return booked.sort();
+}
+
+export function isTimeBooked(
+  dateStr: string,
+  time: string,
+  allTimes: readonly string[],
+): boolean {
+  return getBookedTimesForDate(dateStr, allTimes).includes(time);
+}

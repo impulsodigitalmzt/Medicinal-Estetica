@@ -19,6 +19,7 @@ import {
 } from "@/lib/data";
 import {
   formatDateLong,
+  getBookedTimesForDate,
   POPULAR_BY_CATEGORY,
   QUICK_INTENTS,
 } from "@/lib/booking-helpers";
@@ -50,7 +51,12 @@ function ReservarContent() {
     if (cat) setCategoryId(cat);
     if (svc) setServiceId(svc);
     if (fecha) setSelectedDate(fecha);
-    if (hora) setSelectedTime(hora);
+    if (hora && fecha) {
+      const booked = getBookedTimesForDate(fecha, AVAILABLE_TIMES);
+      if (!booked.includes(hora)) setSelectedTime(hora);
+    } else if (hora) {
+      setSelectedTime(hora);
+    }
   }, [searchParams]);
 
   const selectedService = useMemo(
@@ -86,6 +92,16 @@ function ReservarContent() {
         !!selectedTime &&
         nombre.trim().length >= 2 &&
         telefono.trim().length >= 8;
+
+  const bookedTimes = useMemo(
+    () =>
+      selectedDate
+        ? getBookedTimesForDate(selectedDate, AVAILABLE_TIMES)
+        : [],
+    [selectedDate],
+  );
+  const bookedSet = useMemo(() => new Set(bookedTimes), [bookedTimes]);
+  const freeSlotsCount = AVAILABLE_TIMES.length - bookedTimes.length;
 
   function scrollTo(el: React.RefObject<HTMLDivElement | null>) {
     setTimeout(() => {
@@ -134,6 +150,7 @@ function ReservarContent() {
   }
 
   function selectDateTime(date: string, time: string) {
+    if (getBookedTimesForDate(date, AVAILABLE_TIMES).includes(time)) return;
     setSelectedDate(date);
     setSelectedTime(time);
     scrollTo(paymentRef);
@@ -314,28 +331,56 @@ function ReservarContent() {
 
                 {selectedDate ? (
                   <div className="mt-6">
-                    <p className="mb-3 text-sm font-medium text-luxury-dark">
-                      Horarios para{" "}
-                      <span className="font-serif capitalize text-luxury-accent">
-                        {formatDateLong(selectedDate)}
-                      </span>
-                    </p>
-                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
-                      {AVAILABLE_TIMES.map((time) => (
-                        <button
-                          key={time}
-                          type="button"
-                          onClick={() => selectDateTime(selectedDate, time)}
-                          className={`min-h-10 rounded-pill px-1.5 py-2 text-xs transition-all duration-300 sm:px-2 sm:py-2.5 sm:text-sm ${
-                            selectedTime === time
-                              ? "bg-luxury-dark text-luxury-bg"
-                              : "border border-luxury-accent/30 text-luxury-text hover:border-luxury-accent"
-                          }`}
-                        >
-                          {time}
-                        </button>
-                      ))}
+                    <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+                      <p className="text-sm font-medium text-luxury-dark">
+                        Horarios para{" "}
+                        <span className="font-serif capitalize text-luxury-accent">
+                          {formatDateLong(selectedDate)}
+                        </span>
+                      </p>
+                      <p className="text-xs text-luxury-text/55">
+                        {freeSlotsCount} disponible
+                        {freeSlotsCount === 1 ? "" : "s"} · {bookedTimes.length}{" "}
+                        reservado{bookedTimes.length === 1 ? "" : "s"}
+                      </p>
                     </div>
+                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+                      {AVAILABLE_TIMES.map((time) => {
+                        const booked = bookedSet.has(time);
+                        const selected = selectedTime === time;
+                        return (
+                          <button
+                            key={time}
+                            type="button"
+                            disabled={booked}
+                            onClick={() => selectDateTime(selectedDate, time)}
+                            title={
+                              booked
+                                ? "Horario ya reservado"
+                                : `Reservar a las ${time}`
+                            }
+                            className={`relative min-h-10 rounded-pill px-1.5 py-2 text-xs transition-all duration-300 sm:px-2 sm:py-2.5 sm:text-sm ${
+                              booked
+                                ? "cursor-not-allowed border border-transparent bg-luxury-dark/[0.04] text-luxury-text/30 line-through"
+                                : selected
+                                  ? "bg-luxury-dark text-luxury-bg"
+                                  : "border border-luxury-accent/30 text-luxury-text hover:border-luxury-accent"
+                            }`}
+                          >
+                            {time}
+                            {booked ? (
+                              <span className="mt-0.5 block text-[9px] font-medium uppercase tracking-wide text-luxury-text/35 no-underline sm:text-[10px]">
+                                Ocupado
+                              </span>
+                            ) : null}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="mt-3 text-xs leading-relaxed text-luxury-text/50">
+                      Los horarios marcados como ocupados ya tienen cita
+                      confirmada (simulación de agenda real).
+                    </p>
                   </div>
                 ) : (
                   <p className="mt-4 text-sm text-luxury-text/60">

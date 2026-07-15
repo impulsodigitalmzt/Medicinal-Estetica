@@ -1,14 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Calendar, MessageCircle } from "lucide-react";
 import { AVAILABLE_TIMES, CLINIC } from "@/lib/data";
+import { getBookedTimesForDate } from "@/lib/booking-helpers";
 
 export default function Booking() {
   const [tab, setTab] = useState<"calendar" | "whatsapp">("calendar");
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
+
+  const bookedSet = useMemo(
+    () => new Set(getBookedTimesForDate(selectedDate, AVAILABLE_TIMES)),
+    [selectedDate],
+  );
 
   const today = new Date();
   const daysInMonth = new Date(
@@ -127,20 +133,31 @@ export default function Booking() {
                   </p>
                 ) : (
                   <div className="grid grid-cols-3 gap-2">
-                    {AVAILABLE_TIMES.map((time) => (
-                      <button
-                        key={time}
-                        type="button"
-                        onClick={() => setSelectedTime(time)}
-                        className={`min-h-10 rounded-sm px-3 py-2 text-sm transition-all duration-300 ${
-                          selectedTime === time
-                            ? "bg-luxury-dark text-luxury-bg"
-                            : "border border-luxury-accent/30 text-luxury-text hover:border-luxury-accent"
-                        }`}
-                      >
-                        {time}
-                      </button>
-                    ))}
+                    {AVAILABLE_TIMES.map((time) => {
+                      const booked = bookedSet.has(time);
+                      return (
+                        <button
+                          key={time}
+                          type="button"
+                          disabled={booked}
+                          onClick={() => setSelectedTime(time)}
+                          className={`min-h-10 rounded-sm px-3 py-2 text-sm transition-all duration-300 ${
+                            booked
+                              ? "cursor-not-allowed bg-luxury-dark/5 text-luxury-text/30 line-through"
+                              : selectedTime === time
+                                ? "bg-luxury-dark text-luxury-bg"
+                                : "border border-luxury-accent/30 text-luxury-text hover:border-luxury-accent"
+                          }`}
+                        >
+                          {time}
+                          {booked ? (
+                            <span className="mt-0.5 block text-[9px] uppercase tracking-wide no-underline">
+                              Ocupado
+                            </span>
+                          ) : null}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
 
