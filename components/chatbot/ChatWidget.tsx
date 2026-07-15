@@ -45,6 +45,15 @@ export default function ChatWidget() {
   }, []);
 
   useEffect(() => {
+    engine.setPathname(pathname ?? "/");
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open || !onBookingPage) return;
+    void engine.offerBookingAssistIfNeeded();
+  }, [open, onBookingPage]);
+
+  useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);

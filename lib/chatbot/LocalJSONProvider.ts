@@ -57,6 +57,42 @@ function wantsSchedule(msg: string) {
   );
 }
 
+function wantsBookingGuide(msg: string, kb: Knowledge) {
+  const intent = matchIntent(msg, kb);
+  if (intent?.id === "booking_help") return true;
+  const n = normalize(msg);
+  return /paso a paso|guiame|estoy perdido|donde voy|que hago|como reservo|como agendo/.test(
+    n,
+  );
+}
+
+function wantsNextStep(msg: string) {
+  const n = normalize(msg);
+  return /siguiente|continuar|listo|ya lo hice|hecho|ok\b|dale/.test(n);
+}
+
+function wantsRestartGuide(msg: string) {
+  const n = normalize(msg);
+  return /repetir|desde el inicio|empezar de nuevo|reiniciar/.test(n);
+}
+
+function jumpToGuideStep(msg: string): number | null {
+  const n = normalize(msg);
+  if (/tratamiento|categoria|botox|filler|endolift/.test(n) && /paso|voy|estoy|guia/.test(n))
+    return 0;
+  if (/horario|hora|calendario|fecha|dia/.test(n)) return 1;
+  if (/dato|nombre|telefono|whatsapp/.test(n) && !/dejar mis datos/.test(n))
+    return 2;
+  if (/pago|pagar|clinica|tarjeta|pasarela/.test(n)) return 3;
+  if (/confirma/.test(n)) return 4;
+  if (/^tratamiento$/.test(n)) return 0;
+  if (/^horario$/.test(n)) return 1;
+  if (/^datos$/.test(n)) return 2;
+  if (/^pago$/.test(n)) return 3;
+  if (/^confirmar$/.test(n)) return 4;
+  return null;
+}
+
 function serviceLabel(id: ServiceId | null, kb: Knowledge) {
   if (!id) return "medicina estética";
   return kb.services[id]?.label ?? id;
@@ -69,9 +105,12 @@ function quickRepliesFor(
   return kb.quickReplies[key] as QuickReply[];
 }
 
+function isOnReservar(pathname?: string) {
+  return Boolean(pathname?.startsWith("/reservar"));
+}
+
 /**
- * Local mock provider: interview flow + FAQ intents from KnowledgeBase.json.
- * Replace with OpenAIProvider later implementing the same LLMProvider interface.
+ * Local mock provider: interview flow + booking guide + FAQ from KnowledgeBase.json.
  */
 export class LocalJSONProvider implements LLMProvider {
   private kb: Knowledge;
@@ -80,19 +119,25 @@ export class LocalJSONProvider implements LLMProvider {
     this.kb = kb;
   }
 
-  getWelcome(): LLMResponse {
+  getWelcome(context?: { pathname?: string }): LLMResponse {
+    if (isOnReservar(context?.pathname)) {
+      return this.startBookingGuide(true);
+    }
     return {
       content: this.kb.welcome,
       quickReplies: quickRepliesFor("welcome", this.kb),
-      nextState: { step: "welcome" },
+      nextState: { step: "welcome", bookingGuideIndex: 0 },
     };
   }
 
+  getBookingAssistIntro(): LLMResponse {
+    return this.startBookingGuide(true);
+  }
+
   async getResponse(msg: string, context: LLMContext): Promise<LLMResponse> {
-    // Simula procesamiento de IA (~1.5s) mientras la UI muestra «Escribiendo…».
     await new Promise((r) => setTimeout(r, 1500));
 
-    const { state } = context;
+    const { state, pathname } = context;
     const trimmed = msg.trim();
 
     switch (state.step) {
@@ -105,21 +150,144 @@ export class LocalJSONProvider implements LLMProvider {
       case "closing":
         return this.handleClosingFollowUp(trimmed, state);
       case "service_detail":
-        return this.handleAfterService(trimmed, state);
+        return this.handleAfterService(trimmed, state, pathname);
+      case "booking_guide":
+        return this.handleBookingGuide(trimmed, state, pathname);
       case "welcome":
       case "need":
       default:
-        return this.handleDiscovery(trimmed, state);
+        return this.handleDiscovery(trimmed, state, pathname);
     }
+  }
+
+  private startBookingGuide(onPage: boolean): LLMResponse {
+    const guide = this.kb.bookingGuide;
+    const step0 = guide.steps[0];
+    return {
+      content: onPage
+        ? guide.introOnPage
+        : `${guide.introOffPage}\n\n**${step0.title}**\n${step0.body}`,
+      links: onPage
+        ? undefined
+        : [{ label: "Ir a Agendar cita", href: "/reservar" }],
+      quickReplies: quickRepliesFor("bookingGuide", this.kb),
+      nextState: { step: "booking_guide", bookingGuideIndex: 0 },
+      analyze: true,
+    };
+  }
+
+  private stepResponse(index: number): LLMResponse {
+    const guide = this.kb.bookingGuide;
+    const steps = guide.steps;
+    if (index >= steps.length) {
+      return {
+        content: guide.done,
+        links: [{ label: "Agendar cita", href: "/reservar" }],
+        quickReplies: quickRepliesFor("bookingGuideDone", this.kb),
+        nextState: {
+          step: "booking_guide",
+          bookingGuideIndex: steps.length,
+        },
+      };
+    }
+    const step = steps[index];
+    return {
+      content: `**${step.title}**\n${step.body}`,
+      quickReplies: quickRepliesFor("bookingGuide", this.kb),
+      nextState: { step: "booking_guide", bookingGuideIndex: index },
+      analyze: true,
+    };
+  }
+
+  private handleBookingGuide(
+    msg: string,
+    state: ConversationState,
+    pathname?: string,
+  ): LLMResponse {
+    const n = normalize(msg);
+
+    if (/dejar mis datos|mis datos de contacto/.test(n)) {
+      return {
+        content: this.kb.askName,
+        nextState: { step: "ask_name" },
+      };
+    }
+
+    if (wantsRestartGuide(msg)) {
+      return this.stepResponse(0);
+    }
+
+    if (/perdido|donde voy|ayuda|no se|me trab/.test(n)) {
+      return {
+        content: this.kb.bookingGuide.lost,
+        quickReplies: [
+          { id: "t", label: "Tratamiento", message: "Tratamiento" },
+          { id: "h", label: "Horario", message: "Horario" },
+          { id: "d", label: "Datos", message: "Datos" },
+          { id: "p", label: "Pago", message: "Pago" },
+          { id: "c", label: "Confirmar", message: "Confirmar" },
+          ...quickRepliesFor("bookingGuide", this.kb),
+        ],
+        nextState: { step: "booking_guide" },
+      };
+    }
+
+    const jump = jumpToGuideStep(msg);
+    if (jump !== null) {
+      return this.stepResponse(jump);
+    }
+
+    if (wantsNextStep(msg)) {
+      const next = (state.bookingGuideIndex ?? 0) + 1;
+      return this.stepResponse(next);
+    }
+
+    // Allow service Q&A without leaving the guide
+    const serviceId = matchService(msg, this.kb);
+    if (serviceId) {
+      const service = this.kb.services[serviceId];
+      return {
+        content: `${service.summary}\n\nCuando quieras, seguimos con la reserva: toca **Siguiente paso**.`,
+        links: service.links,
+        quickReplies: quickRepliesFor("bookingGuide", this.kb),
+        nextState: {
+          step: "booking_guide",
+          selectedService: serviceId,
+          bookingGuideIndex: state.bookingGuideIndex,
+        },
+        analyze: true,
+      };
+    }
+
+    if (!isOnReservar(pathname) && wantsSchedule(msg)) {
+      return {
+        content:
+          "Perfecto. Abre **Agendar cita** y te sigo guiando ahí mismo. También puedo tomar tus datos ahora si lo prefieres.",
+        links: [{ label: "Ir a Agendar cita", href: "/reservar" }],
+        quickReplies: [
+          ...quickRepliesFor("bookingGuide", this.kb),
+          {
+            id: "datos",
+            label: "Dejar mis datos",
+            message: "Quiero dejar mis datos de contacto",
+          },
+        ],
+      };
+    }
+
+    return this.stepResponse(state.bookingGuideIndex ?? 0);
   }
 
   private handleDiscovery(
     msg: string,
     state: ConversationState,
+    pathname?: string,
   ): LLMResponse {
     const n = normalize(msg);
+    const onReservar = isOnReservar(pathname);
 
     if (/hola|buenas|buenos|saludos|hey/.test(n) && state.step === "welcome") {
+      if (onReservar) return this.startBookingGuide(true);
       return {
         content: this.kb.greeting,
         quickReplies: quickRepliesFor("welcome", this.kb),
@@ -127,8 +295,14 @@ export class LocalJSONProvider implements LLMProvider {
       };
     }
 
+    if (wantsBookingGuide(msg, this.kb) || wantsRestartGuide(msg)) {
+      return this.startBookingGuide(onReservar);
+    }
+
+    // On /reservar, "agendar" should guide the form, not start lead interview
     const scheduleIntent = matchIntent(msg, this.kb);
     if (scheduleIntent?.id === "schedule" || wantsSchedule(msg)) {
+      if (onReservar) return this.startBookingGuide(true);
       return {
         content: this.kb.askName,
         nextState: { step: "ask_name" },
@@ -136,7 +310,7 @@ export class LocalJSONProvider implements LLMProvider {
       };
     }
 
-    if (scheduleIntent && scheduleIntent.id !== "schedule") {
+    if (scheduleIntent && scheduleIntent.id !== "schedule" && scheduleIntent.id !== "booking_help") {
       return {
         content: scheduleIntent.content ?? this.kb.fallback,
         links: scheduleIntent.links,
@@ -160,6 +334,10 @@ export class LocalJSONProvider implements LLMProvider {
       };
     }
 
+    if (onReservar) {
+      return this.startBookingGuide(true);
+    }
+
     return {
       content: this.kb.needPrompt,
       quickReplies: quickRepliesFor("welcome", this.kb),
@@ -170,8 +348,14 @@ export class LocalJSONProvider implements LLMProvider {
   private handleAfterService(
     msg: string,
     state: ConversationState,
+    pathname?: string,
   ): LLMResponse {
+    if (wantsBookingGuide(msg, this.kb)) {
+      return this.startBookingGuide(isOnReservar(pathname));
+    }
+
     if (wantsSchedule(msg) || matchIntent(msg, this.kb)?.id === "schedule") {
+      if (isOnReservar(pathname)) return this.startBookingGuide(true);
       return {
         content: this.kb.askName,
         nextState: { step: "ask_name" },
@@ -194,7 +378,7 @@ export class LocalJSONProvider implements LLMProvider {
     }
 
     const intent = matchIntent(msg, this.kb);
-    if (intent && intent.id !== "schedule") {
+    if (intent && intent.id !== "schedule" && intent.id !== "booking_help") {
       return {
         content: intent.content ?? this.kb.fallback,
         links: intent.links,
@@ -212,6 +396,9 @@ export class LocalJSONProvider implements LLMProvider {
     msg: string,
     state: ConversationState,
   ): LLMResponse {
+    if (wantsBookingGuide(msg, this.kb)) {
+      return this.startBookingGuide(true);
+    }
     if (msg.length < this.kb.validation.nameMinLength) {
       return { content: this.kb.validation.nameInvalid };
     }
@@ -267,7 +454,14 @@ export class LocalJSONProvider implements LLMProvider {
       }),
       links: [
         { label: "Agendar valoración", href },
-        { label: "Ver ubicación", href: "/ubicacion" },
+        { label: "Guíame en la reserva", href: "/reservar" },
+      ],
+      quickReplies: [
+        {
+          id: "guia",
+          label: "Guíame a reservar",
+          message: "Ayúdame a reservar paso a paso",
+        },
       ],
       nextState: {
         step: "closing",
@@ -281,6 +475,10 @@ export class LocalJSONProvider implements LLMProvider {
     msg: string,
     state: ConversationState,
   ): LLMResponse {
+    if (wantsBookingGuide(msg, this.kb)) {
+      return this.startBookingGuide(true);
+    }
+
     const serviceId = matchService(msg, this.kb);
     if (serviceId) {
       const service = this.kb.services[serviceId];
@@ -292,7 +490,7 @@ export class LocalJSONProvider implements LLMProvider {
     }
 
     const intent = matchIntent(msg, this.kb);
-    if (intent && intent.id !== "schedule") {
+    if (intent && intent.id !== "schedule" && intent.id !== "booking_help") {
       return {
         content: intent.content ?? this.kb.fallback,
         links: intent.links,
@@ -305,7 +503,7 @@ export class LocalJSONProvider implements LLMProvider {
 
     return {
       content:
-        "Si necesitas algo más, estoy disponible. También puedes agendar tu valoración en línea cuando gustes.",
+        "Si necesitas algo más, estoy disponible. También puedo guiarte paso a paso en la reserva en línea.",
       links: [
         { label: "Agendar valoración", href },
         { label: "Ver tratamientos", href: "/servicios" },

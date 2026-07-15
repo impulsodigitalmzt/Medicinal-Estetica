@@ -9,8 +9,11 @@ export type ConversationState = {
     | "ask_name"
     | "ask_whatsapp"
     | "ask_email"
-    | "closing";
+    | "closing"
+    | "booking_guide";
   selectedService: "botox" | "fillers" | "endolift" | null;
+  /** Index within reservation walkthrough (0-based). */
+  bookingGuideIndex: number;
   lead: {
     name: string;
     whatsapp: string;
@@ -23,6 +26,7 @@ export type LLMLink = { label: string; href: string };
 export type LLMContext = {
   history: ChatMessage[];
   state: ConversationState;
+  pathname?: string;
 };
 
 export type LLMResponse = {
@@ -37,19 +41,19 @@ export type LLMResponse = {
 /**
  * Abstract LLM contract — swap LocalJSONProvider for OpenAI later
  * without touching ChatUI.
- *
- * Demo: LocalJSONProvider responde desde KnowledgeBase.json con un
- * setTimeout de ~1.5s para simular «Escribiendo…».
  */
 export interface LLMProvider {
   getResponse(msg: string, context: LLMContext): Promise<LLMResponse>;
-  getWelcome(): LLMResponse;
+  getWelcome(context?: { pathname?: string }): LLMResponse;
+  /** Proactive tip when user opens chat on /reservar. */
+  getBookingAssistIntro?(): LLMResponse;
 }
 
 export function createInitialState(): ConversationState {
   return {
     step: "welcome",
     selectedService: null,
+    bookingGuideIndex: 0,
     lead: { name: "", whatsapp: "", email: "" },
   };
 }

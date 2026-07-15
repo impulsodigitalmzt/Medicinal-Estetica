@@ -52,8 +52,10 @@ export class ConversationEngine {
   private quickReplies: QuickReply[] = [];
   private status: EngineStatus = "idle";
   private listeners = new Set<() => void>();
-  /** Prevents duplicate Supabase inserts if the closing step re-renders. */
+  /** Prevents duplicate lead inserts if the closing step re-renders. */
   private leadPersisted = false;
+  private pathname = "/";
+  private bookingAssistShown = false;
   /** Cached for useSyncExternalStore — must keep referential equality until change. */
   private snapshot: ConversationSnapshot;
 
@@ -68,6 +70,50 @@ export class ConversationEngine {
     this.provider = provider;
   }
 
+  setPathname(pathname: string) {
+    const next = pathname || "/";
+    const wasBooking = this.pathname.startsWith("/reservar");
+    const nowBooking = next.startsWith("/reservar");
+    this.pathname = next;
+    if (wasBooking && !nowBooking) {
+      this.bookingAssistShown = false;
+    }
+  }
+
+  /**
+   * When the user opens chat on /reservar, offer step-by-step guidance
+   * without interrupting an active lead interview.
+   */
+  async offerBookingAssistIfNeeded() {
+    if (!this.pathname.startsWith("/reservar")) return;
+    if (this.bookingAssistShown) return;
+    if (this.status !== "idle") return;
+
+    const interviewing = ["ask_name", "ask_whatsapp", "ask_email"].includes(
+      this.state.step,
+    );
+    if (interviewing) return;
+    if (this.state.step === "booking_guide") {
+      this.bookingAssistShown = true;
+      return;
+    }
+
+    const intro = this.provider.getBookingAssistIntro?.();
+    if (!intro) return;
+
+    this.bookingAssistShown = true;
+    this.quickReplies = [];
+    this.status = "analyzing";
+    this.commit();
+    await delay(400);
+    this.status = "typing";
+    this.commit();
+    await delay(900);
+    this.applyAssistantResponse(intro);
+    this.status = "idle";
+    this.commit();
+  }
+
   /** Welcome with Analizando… → Escribiendo… for a professional first impression. */
   private async bootstrapWelcome() {
     this.status = "analyzing";
@@ -78,7 +124,7 @@ export class ConversationEngine {
     this.commit();
     await delay(680);
 
-    const welcome = this.provider.getWelcome();
+    const welcome = this.provider.getWelcome({ pathname: this.pathname });
     this.applyAssistantResponse(welcome);
     this.status = "idle";
     this.commit();
@@ -116,6 +162,7 @@ export class ConversationEngine {
     this.quickReplies = [];
     this.status = "idle";
     this.leadPersisted = false;
+    this.bookingAssistShown = false;
     this.commit();
     void this.bootstrapWelcome();
   }
@@ -133,10 +180,10 @@ export class ConversationEngine {
     this.status = "typing";
     this.commit();
 
-    // LocalJSONProvider simula IA (~1.5s) mientras status = typing.
     const response = await this.provider.getResponse(trimmed, {
       history: this.messages,
       state: this.state,
+      pathname: this.pathname,
     });
 
     const assistant = this.applyAssistantResponse(response);
@@ -169,7 +216,7 @@ export class ConversationEngine {
     return assistant;
   }
 
-  /** Demo: persists lead in localStorage (`leads_demo`) for the dashboard. */
+  /** Persists lead in localStorage (`leads_demo`) for the dashboard. */
   private persistLead() {
     try {
       const { name, whatsapp, email } = this.state.lead;

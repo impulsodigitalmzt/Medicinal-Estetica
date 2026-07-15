@@ -6,12 +6,40 @@
   },
   "welcome": "Hola, soy el asistente virtual del Dr. Osuna. Estoy aquí para resolver tus dudas sobre nuestros tratamientos y agendar tu valoración. ¿En qué puedo ayudarte hoy?",
   "greeting": "¡Hola! Con gusto te acompaño. ¿Buscas atenuar líneas de expresión con **Botox**, restaurar volumen con **fillers**, o un tensado cutáneo con **Endolift**?",
-  "needPrompt": "Para orientarte con precisión: ¿buscas atenuar líneas de expresión con **Botox**, volumen y armonía facial con **fillers**, o tensado cutáneo con **Endolift**?",
+  "needPrompt": "Para orientarte con precisión: ¿buscas atenuar líneas de expresión con **Botox**, volumen y armonía facial con **fillers**, o tensado cutáneo con **Endolift**? También puedo **guiarte paso a paso** si estás agendando.",
   "askName": "Perfecto. Para coordinar tu valoración con el equipo del Dr. Andrés, ¿me compartes tu **nombre completo**?",
   "askWhatsApp": "Gracias, {name}. ¿Cuál es tu número de **WhatsApp** (con lada, ej. 669 155 7846)?",
   "askEmail": "Excelente. Por último, ¿cuál es tu **correo electrónico** de contacto?",
   "closing": "Gracias, {name}. He enviado esta información al equipo del Dr. Osuna y en breve nos pondremos en contacto contigo.\n\nInterés registrado: **{service}**\nWhatsApp: {whatsapp}\nCorreo: {email}\n\nSi lo prefieres, también puedes agendar tu valoración en línea ahora.",
   "fallback": "Puedo orientarte sobre **Botox**, **fillers**, **Endolift**, precios de referencia, ubicación en Mazatlán y cómo agendar tu valoración. ¿Sobre cuál te gustaría saber más?",
+  "bookingGuide": {
+    "introOnPage": "Veo que estás en **Agendar cita**. Te guío paso a paso para que no te pierdas.\n\n**Paso 1 — Tratamiento:** elige el área (Botox, Fillers, etc.) y luego el tratamiento específico arriba en la página.\n\nCuando lo tengas, toca **Siguiente paso** o escribe «siguiente».",
+    "introOffPage": "Te acompaño a reservar sin perderte. El flujo es:\n1) Tratamiento · 2) Día y hora · 3) Tus datos · 4) Forma de pago · 5) Confirmar.\n\nAbre **Agendar cita** y te voy diciendo cada paso. ¿Empezamos?",
+    "steps": [
+      {
+        "title": "Paso 1 — Tratamiento",
+        "body": "En la página, elige primero el **área** (Botox, Fillers, Endolift…) y después el **tratamiento** concreto.\n\nOpcional: también puedes usar las tarjetas de «Opción más rápida» al inicio."
+      },
+      {
+        "title": "Paso 2 — Día y hora",
+        "body": "Baja a **¿Cuándo te conviene?** Elige un día en el calendario y luego un horario.\n\nLos marcados como **Ocupado** ya no están disponibles; elige uno libre (en blanco o resaltado al tocarlo)."
+      },
+      {
+        "title": "Paso 3 — Tus datos",
+        "body": "Completa **Tu nombre** y **WhatsApp / Teléfono**.\n\nCon esos datos el consultorio puede confirmar tu cita. Cuando ambos campos estén listos, continúa abajo."
+      },
+      {
+        "title": "Paso 4 — Forma de pago",
+        "body": "Elige cómo pagar:\n• **Pagar en clínica** — confirmas la reserva y abonas el día de la cita.\n• **Pagar en línea** — se abre la pasarela; al autorizar el pago, la reserva queda confirmada."
+      },
+      {
+        "title": "Paso 5 — Confirmar",
+        "body": "Si elegiste **clínica**, toca el botón **Confirmar reserva** debajo del método de pago.\n\nSi elegiste **en línea**, completa el pago en la pasarela: al terminar, tu cita queda registrada."
+      }
+    ],
+    "done": "¡Listo! Si ya confirmaste, verás el aviso de reserva en la página.\n\nSi te trabas en algún paso, escribe **ayuda** o **dónde voy** y te digo exactamente qué hacer.",
+    "lost": "No te preocupes. Dime en qué parte estás o toca un botón:\n• Tratamiento\n• Horario\n• Datos\n• Pago\n• Confirmar\n\nTambién puedes escribir «siguiente» para avanzar en la guía."
+  },
   "services": {
     "botox": {
       "id": "botox",
@@ -52,13 +80,25 @@
       { "id": "botox", "label": "Botox", "message": "Me interesa Botox para líneas de expresión" },
       { "id": "fillers", "label": "Fillers", "message": "Me interesan fillers / ácido hialurónico" },
       { "id": "endolift", "label": "Endolift", "message": "Me interesa Endolift para tensado cutáneo" },
-      { "id": "agendar", "label": "Agendar valoración", "message": "Quiero agendar una valoración" }
+      { "id": "agendar", "label": "Agendar valoración", "message": "Quiero agendar una valoración" },
+      { "id": "guia", "label": "Guíame a reservar", "message": "Ayúdame a reservar paso a paso" }
     ],
     "afterService": [
       { "id": "agendar", "label": "Agendar valoración", "message": "Sí, quiero agendar una valoración" },
+      { "id": "guia", "label": "Guíame a reservar", "message": "Ayúdame a reservar paso a paso" },
       { "id": "botox", "label": "Botox", "message": "Cuéntame sobre Botox" },
       { "id": "fillers", "label": "Fillers", "message": "Cuéntame sobre fillers" },
       { "id": "endolift", "label": "Endolift", "message": "Cuéntame sobre Endolift" }
+    ],
+    "bookingGuide": [
+      { "id": "next", "label": "Siguiente paso", "message": "Siguiente paso" },
+      { "id": "lost", "label": "Estoy perdido", "message": "Estoy perdido, ¿dónde voy?" },
+      { "id": "restart", "label": "Repetir guía", "message": "Repite la guía desde el inicio" }
+    ],
+    "bookingGuideDone": [
+      { "id": "restart", "label": "Repetir guía", "message": "Repite la guía desde el inicio" },
+      { "id": "agendar", "label": "Dejar mis datos", "message": "Quiero dejar mis datos de contacto" },
+      { "id": "botox", "label": "Botox", "message": "Cuéntame sobre Botox" }
     ]
   },
   "intents": [
@@ -66,6 +106,26 @@
       "id": "schedule",
       "keywords": ["agendar", "cita", "valoracion", "reserva", "reservar", "turno", "disponib"],
       "nextStep": "ask_name"
+    },
+    {
+      "id": "booking_help",
+      "keywords": [
+        "perdido",
+        "ayuda",
+        "guiame",
+        "guia",
+        "paso a paso",
+        "como reservo",
+        "como agendo",
+        "instrucciones",
+        "donde voy",
+        "que hago",
+        "siguiente",
+        "no entiendo",
+        "me trab",
+        "repetir guia",
+        "desde el inicio"
+      ]
     },
     {
       "id": "location",
