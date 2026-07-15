@@ -141,6 +141,13 @@ function ReservarContent() {
 
   function selectPayment(method: "clinic" | "online") {
     setPaymentMethod(method);
+
+    if (method === "online") {
+      // Elige pago en línea → abre el checkout (no saltar a nombre).
+      setCheckoutOpen(true);
+      return;
+    }
+
     scrollTo(contactRef);
   }
 
@@ -388,6 +395,16 @@ function ReservarContent() {
                     </span>
                   </button>
                 </div>
+                {paymentMethod === "online" && (
+                  <p className="mt-3 rounded-serenity border border-luxury-accent/20 bg-luxury-card/60 px-3.5 py-2.5 text-xs leading-relaxed text-luxury-text/80">
+                    Se abre el checkout seguro. Si lo cierras, puedes volver a
+                    abrirlo con el botón{" "}
+                    <span className="font-semibold text-luxury-dark">
+                      Ir al checkout
+                    </span>{" "}
+                    abajo.
+                  </p>
+                )}
               </section>
             )}
 
