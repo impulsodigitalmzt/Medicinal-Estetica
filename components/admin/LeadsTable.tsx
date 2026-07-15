@@ -11,6 +11,7 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
+  Bell,
   CalendarDays,
   Check,
   Download,
@@ -21,14 +22,21 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import type { Lead, LeadPriority, PipelineStage } from "@/lib/leads/demo";
+import type {
+  FollowUpStatus,
+  Lead,
+  LeadPriority,
+  PipelineStage,
+} from "@/lib/leads/demo";
 import {
   PIPELINE_STAGES,
   PRIORITY_RANK,
   WHATSAPP_TEMPLATES,
+  buildFollowUpMessage,
   buildWhatsAppUrl,
   clearLeads,
   deleteLead,
+  followUpLabel,
   getLeads,
   isReviewThisWeek,
   markAsAttended,
@@ -37,6 +45,7 @@ import {
   stageLabel,
   subscribeLeads,
   updateDoctorNotes,
+  updateFollowUpStatus,
   updateLeadPriority,
   updateLeadStage,
   updateNextReview,
@@ -175,6 +184,7 @@ function exportLeadsCsv(leads: Lead[]) {
     "WhatsApp",
     "Servicio",
     "Estado",
+    "Seguimiento",
     "Prioridad",
     "Etapa",
     "Próxima revisión",
@@ -192,6 +202,7 @@ function exportLeadsCsv(leads: Lead[]) {
       l.whatsapp,
       serviceLabel(l.service),
       l.status === "nuevo" ? "Pendiente" : "Atendido",
+      followUpLabel(l.follow_up_status),
       priorityLabel(l.priority),
       stageLabel(l.stage),
       l.next_review ?? "",
@@ -221,6 +232,7 @@ export default function LeadsTable() {
   const [sortKey, setSortKey] = useState<SortKey>("prioridad");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [followUpId, setFollowUpId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
 
   const refresh = useCallback(() => {
@@ -236,6 +248,11 @@ export default function LeadsTable() {
   const selected = useMemo(
     () => leads.find((l) => l.id === selectedId) ?? null,
     [leads, selectedId],
+  );
+
+  const followUpLead = useMemo(
+    () => leads.find((l) => l.id === followUpId) ?? null,
+    [leads, followUpId],
   );
 
   const visible = useMemo(() => {
@@ -487,9 +504,22 @@ export default function LeadsTable() {
                     <div className="flex flex-col items-end gap-1.5">
                       <PriorityBadge priority={lead.priority} />
                       <StatusBadge status={lead.status} />
+                      <FollowUpBadge status={lead.follow_up_status} />
                     </div>
                   </div>
                   <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setFollowUpId(lead.id);
+                      }}
+                      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm transition hover:bg-gray-50"
+                      title="Gestión de seguimiento"
+                      aria-label="Gestión de seguimiento"
+                    >
+                      <Bell size={16} />
+                    </button>
                     <button
                       type="button"
                       onClick={(e) => handleWhatsApp(lead, e)}
@@ -610,13 +640,25 @@ export default function LeadsTable() {
                         <PriorityBadge priority={lead.priority} />
                       </td>
                       <td className="px-4 py-4">
-                        <StatusBadge status={lead.status} />
+                        <div className="flex flex-col items-start gap-1.5">
+                          <StatusBadge status={lead.status} />
+                          <FollowUpBadge status={lead.follow_up_status} />
+                        </div>
                       </td>
                       <td
                         className="px-6 py-4"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setFollowUpId(lead.id)}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm transition hover:bg-gray-50"
+                            title="Gestión de seguimiento"
+                            aria-label="Gestión de seguimiento"
+                          >
+                            <Bell size={16} />
+                          </button>
                           {lead.status === "nuevo" ? (
                             <button
                               type="button"
@@ -679,6 +721,18 @@ export default function LeadsTable() {
           onDelete={(e) => handleDelete(selected.id, e)}
         />
       )}
+
+      {followUpLead && (
+        <FollowUpModal
+          lead={followUpLead}
+          onClose={() => setFollowUpId(null)}
+          onSent={() => {
+            updateFollowUpStatus(followUpLead.id, "en_espera");
+            refresh();
+            setFollowUpId(null);
+          }}
+        />
+      )}
     </>
   );
 }
@@ -730,6 +784,25 @@ function StatusBadge({ status }: { status: Lead["status"] }) {
       }`}
     >
       {isPending ? "Pendiente" : "Atendido"}
+    </span>
+  );
+}
+
+function FollowUpBadge({ status }: { status: FollowUpStatus }) {
+  const styles =
+    status === "en_espera"
+      ? "bg-sky-700 text-white"
+      : status === "contactado"
+        ? "bg-slate-800 text-white"
+        : "bg-gray-200 text-gray-700";
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-wide ${styles}`}
+      title="Estado de seguimiento"
+    >
+      <Bell size={10} />
+      {followUpLabel(status)}
     </span>
   );
 }
@@ -1053,6 +1126,123 @@ function LeadDetailModal({
           </button>
         </div>
       </aside>
+    </div>
+  );
+}
+
+function FollowUpModal({
+  lead,
+  onClose,
+  onSent,
+}: {
+  lead: Lead;
+  onClose: () => void;
+  onSent: () => void;
+}) {
+  const [message, setMessage] = useState(() => buildFollowUpMessage(lead));
+
+  useEffect(() => {
+    setMessage(buildFollowUpMessage(lead));
+  }, [lead]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  function handleSend() {
+    const url = buildWhatsAppUrl(lead.whatsapp, message.trim());
+    window.open(url, "_blank", "noopener,noreferrer");
+    onSent();
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="follow-up-title"
+        className="w-full max-w-md overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between border-b border-gray-200 bg-black px-5 py-4 text-white">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">
+              Seguimiento
+            </p>
+            <h2 id="follow-up-title" className="mt-1 text-lg font-semibold">
+              Gestión de Seguimiento
+            </h2>
+            <p className="mt-1 text-sm text-white/70">
+              {lead.name} · {serviceLabel(lead.service)}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-2 text-white/70 transition hover:bg-white/10 hover:text-white"
+            aria-label="Cerrar"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="space-y-4 px-5 py-5">
+          <div>
+            <label
+              htmlFor="follow-up-message"
+              className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-500"
+            >
+              Mensaje de WhatsApp
+            </label>
+            <textarea
+              id="follow-up-message"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              rows={6}
+              className="mt-2 w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-3 text-sm leading-relaxed text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 focus:bg-white focus:ring-2 focus:ring-gray-900/10"
+            />
+          </div>
+
+          <p className="text-xs text-gray-500">
+            Estado actual:{" "}
+            <span className="font-semibold text-gray-800">
+              {followUpLabel(lead.follow_up_status)}
+            </span>
+            . Al enviar, pasará a{" "}
+            <span className="font-semibold text-sky-800">
+              En espera de respuesta
+            </span>
+            .
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2 border-t border-gray-200 bg-gray-50 px-5 py-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={handleSend}
+            disabled={!message.trim()}
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#25D366] px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1ebe57] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <MessageCircle size={16} />
+            Enviar vía WhatsApp
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

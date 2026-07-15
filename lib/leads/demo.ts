@@ -1,5 +1,9 @@
 export type LeadStatus = "nuevo" | "atendido";
 export type LeadPriority = "alta" | "media" | "baja";
+export type FollowUpStatus =
+  | "pendiente"
+  | "en_espera"
+  | "contactado";
 
 export type PipelineStage =
   | "nuevo_contacto"
@@ -16,6 +20,7 @@ export type Lead = {
   service: string | null;
   status: LeadStatus;
   priority: LeadPriority;
+  follow_up_status: FollowUpStatus;
   stage: PipelineStage;
   next_review: string | null;
   assistant_notes: string;
@@ -32,6 +37,7 @@ export type LeadInput = {
   service?: string | null;
   status?: LeadStatus;
   priority?: LeadPriority;
+  follow_up_status?: FollowUpStatus;
   stage?: PipelineStage;
   next_review?: string | null;
   assistant_notes?: string;
@@ -131,6 +137,24 @@ export function stageLabel(stage: PipelineStage) {
   return PIPELINE_STAGES.find((s) => s.id === stage)?.label ?? stage;
 }
 
+export function followUpLabel(status: FollowUpStatus) {
+  if (status === "en_espera") return "En espera de respuesta";
+  if (status === "contactado") return "Contactado";
+  return "Pendiente";
+}
+
+export function buildFollowUpMessage(lead: Lead): string {
+  const firstName = lead.name.trim().split(/\s+/)[0] || "estimado/a";
+  const servicio = serviceLabel(lead.service);
+  return `Hola ${firstName}, te saluda el equipo del Dr. Andrés Osuna Lizárraga. Queríamos dar seguimiento a tu interés en ${servicio}. ¿Te gustaría que te ayudemos a agendar una valoración en Mazatlán? Quedamos atentos a tu respuesta.`;
+}
+
+const FOLLOW_UP_IDS = new Set<FollowUpStatus>([
+  "pendiente",
+  "en_espera",
+  "contactado",
+]);
+
 function normalizeLead(raw: Partial<Lead> & LeadInput): Lead {
   const priority =
     raw.priority === "alta" || raw.priority === "media" || raw.priority === "baja"
@@ -139,6 +163,11 @@ function normalizeLead(raw: Partial<Lead> & LeadInput): Lead {
 
   const stage =
     raw.stage && STAGE_IDS.has(raw.stage) ? raw.stage : "nuevo_contacto";
+
+  const follow_up_status =
+    raw.follow_up_status && FOLLOW_UP_IDS.has(raw.follow_up_status)
+      ? raw.follow_up_status
+      : "pendiente";
 
   return {
     id:
@@ -152,6 +181,7 @@ function normalizeLead(raw: Partial<Lead> & LeadInput): Lead {
     service: raw.service?.trim() || null,
     status: raw.status === "atendido" ? "atendido" : "nuevo",
     priority,
+    follow_up_status,
     stage,
     next_review: raw.next_review || null,
     assistant_notes: raw.assistant_notes?.trim() || "",
@@ -403,6 +433,16 @@ export function updateLeadPriority(id: string, priority: LeadPriority): void {
 export function updateLeadStage(id: string, stage: PipelineStage): void {
   const next = readStoredLeads().map((lead) =>
     lead.id === id ? { ...lead, stage } : lead,
+  );
+  writeLeads(next);
+}
+
+export function updateFollowUpStatus(
+  id: string,
+  followUpStatus: FollowUpStatus,
+): void {
+  const next = readStoredLeads().map((lead) =>
+    lead.id === id ? { ...lead, follow_up_status: followUpStatus } : lead,
   );
   writeLeads(next);
 }

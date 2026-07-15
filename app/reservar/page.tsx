@@ -26,6 +26,7 @@ import {
 function ReservarContent() {
   const searchParams = useSearchParams();
   const scheduleRef = useRef<HTMLDivElement>(null);
+  const paymentRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
 
   const [categoryId, setCategoryId] = useState("faciales");
@@ -135,6 +136,11 @@ function ReservarContent() {
   function selectDateTime(date: string, time: string) {
     setSelectedDate(date);
     setSelectedTime(time);
+    scrollTo(paymentRef);
+  }
+
+  function selectPayment(method: "clinic" | "online") {
+    setPaymentMethod(method);
     scrollTo(contactRef);
   }
 
@@ -347,12 +353,15 @@ function ReservarContent() {
             )}
 
             {serviceId && !isHighEnd && selectedDate && selectedTime && (
-              <section className="mb-8">
+              <section
+                ref={paymentRef}
+                className="mb-8 scroll-mt-28 scroll-mb-28"
+              >
                 <p className="section-label">Forma de pago</p>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <button
                     type="button"
-                    onClick={() => setPaymentMethod("clinic")}
+                    onClick={() => selectPayment("clinic")}
                     className={`rounded-serenity border px-4 py-3 text-left text-sm transition-all duration-300 ${
                       paymentMethod === "clinic"
                         ? "border-luxury-dark bg-luxury-dark text-luxury-bg"
@@ -366,7 +375,7 @@ function ReservarContent() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setPaymentMethod("online")}
+                    onClick={() => selectPayment("online")}
                     className={`rounded-serenity border px-4 py-3 text-left text-sm transition-all duration-300 ${
                       paymentMethod === "online"
                         ? "border-luxury-dark bg-luxury-dark text-luxury-bg"
