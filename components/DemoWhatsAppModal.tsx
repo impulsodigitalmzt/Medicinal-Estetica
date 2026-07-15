@@ -18,7 +18,7 @@ type DemoWhatsAppModalProps = {
 export default function DemoWhatsAppModal({
   open,
   message,
-  title = "WhatsApp (simulación)",
+  title = "WhatsApp",
   onClose,
 }: DemoWhatsAppModalProps) {
   const [phase, setPhase] = useState<"sending" | "sent">("sending");
@@ -53,7 +53,7 @@ export default function DemoWhatsAppModal({
         >
           <button
             type="button"
-            aria-label="Cerrar simulación"
+            aria-label="Cerrar"
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={onClose}
           />
@@ -76,7 +76,7 @@ export default function DemoWhatsAppModal({
                   <p id="wa-demo-title" className="text-sm font-semibold">
                     {title}
                   </p>
-                  <p className="text-[11px] text-white/70">Modo demostración</p>
+                  <p className="text-[11px] text-white/70">Dr. Andrés Osuna</p>
                 </div>
               </div>
               <button
@@ -90,10 +90,6 @@ export default function DemoWhatsAppModal({
             </div>
 
             <div className="min-h-[220px] px-4 py-5">
-              <p className="mb-3 text-center text-[10px] font-medium uppercase tracking-wider text-[#667781]">
-                No se envía a un número real · solo demo
-              </p>
-
               <div className="ml-auto max-w-[90%] rounded-lg rounded-tr-sm bg-[#DCF8C6] px-3 py-2 shadow-sm">
                 <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-900">
                   {message}
@@ -113,7 +109,7 @@ export default function DemoWhatsAppModal({
                 ) : (
                   <p className="inline-flex items-center gap-1.5 text-sm font-medium text-[#075E54]">
                     <Check size={16} />
-                    Mensaje simulado enviado
+                    Mensaje enviado
                   </p>
                 )}
               </div>

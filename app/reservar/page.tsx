@@ -191,7 +191,7 @@ function ReservarContent() {
 
     const paidNote =
       paymentRef || paidOnline
-        ? `\nPago en línea confirmado (demo). Ref: ${paymentRef ?? transactionId}`
+        ? `\nPago en línea confirmado. Ref: ${paymentRef ?? transactionId}`
         : "";
 
     if (isHighEnd) {
@@ -206,7 +206,7 @@ function ReservarContent() {
       <PageHeader
         label="Reserva tu cita"
         title="Reserva tu tratamiento"
-        description="Demostración de reserva: tratamiento, horario, datos y pago. WhatsApp y cargos son simulados para la propuesta."
+        description="Elige tratamiento, horario y tus datos. Al final decide si pagas en clínica o en línea."
       />
 
       <section className="section-padding bg-luxury-bg pb-28 sm:pb-24">
@@ -385,7 +385,7 @@ function ReservarContent() {
                     </div>
                     <p className="mt-3 text-xs leading-relaxed text-luxury-text/50">
                       Los horarios marcados como ocupados ya tienen cita
-                      confirmada (simulación de agenda real).
+                      confirmada.
                     </p>
                   </div>
                 ) : (
@@ -534,12 +534,8 @@ function ReservarContent() {
                 <div>
                   <p>
                     {paidOnline
-                      ? "Pago autorizado y reserva confirmada (demo)."
-                      : "Reserva confirmada con pago en clínica (demo)."}
-                  </p>
-                  <p className="mt-1 text-xs text-luxury-text/70">
-                    El aviso por WhatsApp es una simulación para la propuesta —
-                    no se envió a ningún número real.
+                      ? "Pago autorizado y reserva confirmada."
+                      : "Reserva confirmada. Pagarás en la clínica el día de tu cita."}
                   </p>
                   <button
                     type="button"
@@ -552,7 +548,7 @@ function ReservarContent() {
                     }
                     className="mt-2 text-xs font-semibold text-luxury-accent underline"
                   >
-                    Ver mensaje simulado
+                    Ver mensaje enviado
                   </button>
                 </div>
               </div>

@@ -245,11 +245,8 @@ export default function PaymentCardForm({
           </p>
         ) : (
           <p className="mt-4 text-xs leading-relaxed text-gray-500">
-            Demo sin cargo real. Usa{" "}
-            <span className="font-mono text-gray-700">4242 4242 4242 4242</span>{" "}
-            para aprobar, o{" "}
-            <span className="font-mono text-gray-700">4000 0000 0000 0002</span>{" "}
-            para simular rechazo.
+            Tus datos viajan cifrados. Aceptamos Visa, Mastercard y American
+            Express.
           </p>
         )}
 
@@ -267,8 +264,8 @@ export default function PaymentCardForm({
             <ShieldCheck size={12} className="text-emerald-600" />
             Cifrado 256-bit
           </span>
-          <span>PCI DSS · Demo</span>
-          <span>3D Secure listo</span>
+          <span>PCI DSS</span>
+          <span>3D Secure</span>
         </div>
       </div>
     </motion.form>

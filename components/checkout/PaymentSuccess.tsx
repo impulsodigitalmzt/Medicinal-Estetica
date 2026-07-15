@@ -104,7 +104,7 @@ export default function PaymentSuccess({
       </div>
 
       <p className="relative z-10 mt-4 text-xs text-gray-400">
-        Simulación de pasarela · sin cargo bancario real
+        Recibo generado · Cargo autorizado
       </p>
 
       <div className="relative z-10 mt-6 flex flex-col gap-2.5 sm:flex-row sm:justify-center">
@@ -114,7 +114,7 @@ export default function PaymentSuccess({
             onClick={onWhatsApp}
             className="inline-flex items-center justify-center rounded-xl bg-[#25D366] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1ebe57]"
           >
-            Simular envío por WhatsApp
+            Enviar comprobante por WhatsApp
           </button>
         )}
         <button

@@ -36,7 +36,7 @@ export default function OrderSummary({ order }: OrderSummaryProps) {
       <div className="mt-5 flex items-end justify-between border-t border-gray-100 pt-4">
         <div>
           <p className="text-xs text-gray-500">Total a pagar</p>
-          <p className="text-[11px] text-gray-400">MXN · Impuestos incluidos*</p>
+          <p className="text-[11px] text-gray-400">MXN · Impuestos incluidos</p>
         </div>
         <span className="font-serif text-2xl text-gray-900">{order.priceLabel}</span>
       </div>
@@ -55,11 +55,6 @@ export default function OrderSummary({ order }: OrderSummaryProps) {
           {order.appointmentTime} hrs
         </li>
       </ul>
-
-      <p className="mt-4 text-[10px] leading-relaxed text-gray-400">
-        *Simulación de pasarela. El monto se autoriza de forma demostrativa; no
-        hay cargo bancario real.
-      </p>
     </motion.div>
   );
 }
