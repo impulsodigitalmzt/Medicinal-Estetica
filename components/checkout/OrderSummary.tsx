@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, Clock, CreditCard, User } from "lucide-react";
+import { Calendar, Clock, Shield, User } from "lucide-react";
 import type { CheckoutOrder } from "@/lib/checkout/types";
 import { formatDateLong } from "@/lib/booking-helpers";
 
@@ -9,64 +9,57 @@ type OrderSummaryProps = {
   order: CheckoutOrder;
 };
 
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 12 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
-  },
-};
-
 export default function OrderSummary({ order }: OrderSummaryProps) {
   return (
     <motion.div
-      variants={stagger}
-      initial="hidden"
-      animate="show"
-      className="glass-luxury rounded-serenity-lg p-5 sm:p-6"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6"
     >
-      <motion.p variants={item} className="section-label mb-1">
-        Resumen
-      </motion.p>
-      <motion.h3 variants={item} className="font-serif text-xl text-luxury-dark">
-        {order.serviceName}
-      </motion.h3>
-      <motion.p variants={item} className="mt-1 text-xs text-luxury-text/60">
-        {order.categoryName}
-      </motion.p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400">
+            Resumen del cargo
+          </p>
+          <h3 className="mt-1 font-serif text-xl text-gray-900">
+            {order.serviceName}
+          </h3>
+          <p className="mt-0.5 text-xs text-gray-500">{order.categoryName}</p>
+        </div>
+        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-800">
+          <Shield size={11} />
+          Seguro
+        </span>
+      </div>
 
-      <motion.div
-        variants={item}
-        className="mt-5 flex items-end justify-between border-t border-luxury-accent/15 pt-4"
-      >
-        <span className="text-sm text-luxury-text/70">Total estimado</span>
-        <span className="font-serif text-2xl text-luxury-dark">{order.priceLabel}</span>
-      </motion.div>
+      <div className="mt-5 flex items-end justify-between border-t border-gray-100 pt-4">
+        <div>
+          <p className="text-xs text-gray-500">Total a pagar</p>
+          <p className="text-[11px] text-gray-400">MXN · Impuestos incluidos*</p>
+        </div>
+        <span className="font-serif text-2xl text-gray-900">{order.priceLabel}</span>
+      </div>
 
-      <motion.ul variants={item} className="mt-5 space-y-3 text-sm text-luxury-text/80">
+      <ul className="mt-5 space-y-2.5 text-sm text-gray-700">
         <li className="flex items-center gap-2.5">
-          <User size={15} className="shrink-0 text-luxury-accent" />
-          {order.customerName}
+          <User size={15} className="shrink-0 text-gray-400" />
+          {order.customerName?.trim() || "Paciente (completa tus datos)"}
         </li>
         <li className="flex items-center gap-2.5">
-          <Calendar size={15} className="shrink-0 text-luxury-accent" />
+          <Calendar size={15} className="shrink-0 text-gray-400" />
           {formatDateLong(order.appointmentDate)}
         </li>
         <li className="flex items-center gap-2.5">
-          <Clock size={15} className="shrink-0 text-luxury-accent" />
-          {order.appointmentTime}
+          <Clock size={15} className="shrink-0 text-gray-400" />
+          {order.appointmentTime} hrs
         </li>
-        <li className="flex items-center gap-2.5">
-          <CreditCard size={15} className="shrink-0 text-luxury-accent" />
-          Pago simulado · MXN
-        </li>
-      </motion.ul>
+      </ul>
+
+      <p className="mt-4 text-[10px] leading-relaxed text-gray-400">
+        *Simulación de pasarela. El monto se autoriza de forma demostrativa; no
+        hay cargo bancario real.
+      </p>
     </motion.div>
   );
 }

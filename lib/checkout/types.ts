@@ -1,10 +1,13 @@
-export type CheckoutStep = "summary" | "processing" | "success";
+export type CheckoutStep = "summary" | "processing" | "success" | "error";
+
+export type CardBrand = "visa" | "mastercard" | "amex" | "unknown";
 
 export type CardFormData = {
   holderName: string;
   cardNumber: string;
   expiry: string;
   cvc: string;
+  email: string;
 };
 
 export type CheckoutOrder = {
